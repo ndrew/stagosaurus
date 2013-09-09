@@ -6,6 +6,11 @@ package blog
 import (
 	//	"bytes"
 	//"path/filepath"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -27,7 +32,7 @@ type Post struct {
 }
 
 type Renderer interface {
-	Render(post *Post) ([]byte, error)
+	Render(post *Post) error
 	RenderStarted() error
 	RenderEnded() error
 }
@@ -38,8 +43,8 @@ type RenderingStrategy struct {
 	// postTemplate  *template.Template
 }
 
-func (self *RenderingStrategy) Render(post *Post) ([]byte, error) {
-	return []byte("FUUUUUU"), nil
+func (self *RenderingStrategy) Render(post *Post) error {
+	return nil
 }
 
 func (self *RenderingStrategy) RenderStarted() error {
@@ -61,6 +66,8 @@ type Config struct {
 
 	PublishDir   string
 	TemplatesDir string
+
+	Port string
 }
 
 // Post retrival
@@ -122,4 +129,53 @@ func (self Engine) Publish() { // TODO: add err handling
 	}
 
 	self.renderer.RenderEnded()
+}
+
+func (self Engine) NewPost(postName string) {
+	println(postName)
+}
+
+func (self Engine) EditPost(postName string) {
+
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Hello!")
+	// defer r.Body.Close()
+}
+
+func stopServer(w http.ResponseWriter, req *http.Request) {
+	responseString := "Bye-bye"
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	w.Header().Set("Content-Length", strconv.Itoa(len(responseString)))
+	io.WriteString(w, responseString)
+
+	f, canFlush := w.(http.Flusher)
+	if canFlush {
+		f.Flush()
+	}
+
+	conn, _, err := w.(http.Hijacker).Hijack()
+	if err != nil {
+		//fmt.Printf("error while shutting down: %v", err)
+	}
+
+	conn.Close()
+
+	println("Shutting down")
+	os.Exit(0)
+}
+
+func (self Engine) RunServer(dir string, port string) { // "."
+	//port.star
+
+	http.HandleFunc("/exit", stopServer)
+	http.HandleFunc("/preview", handler)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, r.URL.Path[1:])
+	})
+	http.ListenAndServe(":8080", nil)
+
+	//http.ListenAndServe(":8080", http.FileServer(http.Dir(dir)))
 }
