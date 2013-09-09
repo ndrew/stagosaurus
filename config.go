@@ -6,6 +6,21 @@ import (
 	"io/ioutil"
 )
 
+// Configuration about blog itself
+//
+type Config struct {
+	BaseUrl string
+
+	PublishDir   string
+	TemplatesDir string
+
+	Port string
+}
+
+///////////
+// CRAP |
+////////v///
+
 // TODO: fix this mess
 type AppCfg struct {
 	Foo string
