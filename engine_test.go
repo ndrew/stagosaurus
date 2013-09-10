@@ -12,9 +12,12 @@ func TestEngine(t *testing.T) {
 	renderingStrategy := new(RenderingStrategy)
 
 	postsFactory := new(FolderPostFactory)
-	postsFactory.PostsDir = "/Users/ndrw/Desktop/dev/site/blog/posts"
+	postsFactory.PostsDir = "test_data/posts"
 
 	posts := postsFactory.GetPosts()
+	if len(posts) < 1 {
+		t.Errorf("No test posts have been found in %s", postsFactory.PostsDir)
+	}
 
 	engine := New(cfg, renderingStrategy, posts)
 	err = engine.Publish()

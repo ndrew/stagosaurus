@@ -35,6 +35,11 @@ func (f file) isMarkdown() bool {
 	return strings.EqualFold("md", f.GetExt()) || strings.EqualFold("markdown", f.GetExt())
 }
 
+func concatFilePaths(path1 string, path2 string) string {
+	separator := string(os.PathSeparator)
+	return strings.TrimSuffix(path1, separator) + separator + strings.TrimPrefix(path2, separator)
+}
+
 // traverses files in directory and runs a callback 
 //
 func traverseFiles(dir string, callback func(*file)) {
@@ -47,7 +52,7 @@ func traverseFiles(dir string, callback func(*file)) {
 
 	for _, f := range files {
 		if f.IsDir() {
-			traverseFiles(f.Name(), callback)
+			traverseFiles(concatFilePaths(dir, f.Name()), callback)
 		} else {
 			callback(_file(f))
 		}
