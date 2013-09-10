@@ -11,7 +11,7 @@ func TestEngine(t *testing.T) {
 
 	renderingStrategy := new(RenderingStrategy)
 
-	postsFactory := new(FolderPostFactory)
+	postsFactory := new(FileSystem)
 	postsFactory.PostsDir = "test_data/posts"
 
 	posts, err := postsFactory.GetPosts()

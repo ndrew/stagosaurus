@@ -23,17 +23,18 @@ type PostFactory interface {
 
 // Post iterator from filesystem
 //
-type FolderPostFactory struct {
+type FileSystem struct {
 	PostsDir string
 }
 
-func (self FolderPostFactory) New(data string) *Post {
+func (self FileSystem) New(data string) *Post {
 	post := new(Post)
+	post.Content = data
 	// TODO: init meta
 	return post
 }
 
-func (self FolderPostFactory) GetPosts() ([]*Post, error) {
+func (self FileSystem) GetPosts() ([]*Post, error) {
 	posts := []*Post{}
 	var err error = nil
 

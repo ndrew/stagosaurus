@@ -1,8 +1,17 @@
 package blog
 
 import (
+	"regexp"
 	"time"
 )
+
+// metadata goes like this
+// 
+// <!--!
+// metadata
+// -->
+//
+var metadataRE = *regexp.MustCompile("(?s)^(<!--!\n(.+)\n-->)")
 
 // Additional information about blog entry 
 // 
