@@ -1,5 +1,9 @@
 package blog
 
+import (
+	"fmt"
+)
+
 // Blog entry
 //
 type Post struct {
@@ -10,7 +14,8 @@ type Post struct {
 // Post retrival
 //
 type PostFactory interface {
-	GetPosts() []*Post
+	GetPosts() ([]*Post, error)
+	New(string) (*Post, error)
 }
 
 /////////////////////////
@@ -22,18 +27,28 @@ type FolderPostFactory struct {
 	PostsDir string
 }
 
-func (self FolderPostFactory) GetPosts() []*Post {
+func (self FolderPostFactory) New(data string) *Post {
+	post := new(Post)
+	// TODO: init meta
+	return post
+}
+
+func (self FolderPostFactory) GetPosts() ([]*Post, error) {
 	posts := []*Post{}
+	var err error = nil
 
 	callback := func(file *file) {
 		if file.isMarkdown() {
-			post := new(Post)
-			post.Content = file.Name()
+			contents, err := file.Contents()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			post := self.New(string(*contents))
 			posts = append(posts, post)
 		}
 	}
 	traverseFiles(self.PostsDir, callback)
-
 	// get posts
-	return posts
+	return posts, err
 }

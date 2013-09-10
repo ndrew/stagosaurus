@@ -10,23 +10,33 @@ import (
 //
 type file struct {
 	os.FileInfo
+	Dir string
 }
 
 // hidden constructor for file
 //
-func _file(f os.FileInfo) *file {
-	return &file{f}
+func _file(dir string, f os.FileInfo) *file {
+	nf := file{f, ""}
+	nf.Dir = dir
+	return &nf
 }
 
 // return file extenstion
 //
-func (f file) GetExt() string {
+func (f *file) GetExt() string {
 	var a = strings.Split(f.Name(), ".")
 	if 0 == len(a) {
 		return ""
 	}
 	var ext = a[len(a)-1]
 	return ext
+}
+
+// get file contents
+//
+func (f *file) Contents() (*[]byte, error) {
+	data, err := ioutil.ReadFile(concatFilePaths(f.Dir, f.Name()))
+	return &data, err
 }
 
 // checks if file is markdown file
@@ -54,7 +64,7 @@ func traverseFiles(dir string, callback func(*file)) {
 		if f.IsDir() {
 			traverseFiles(concatFilePaths(dir, f.Name()), callback)
 		} else {
-			callback(_file(f))
+			callback(_file(dir, f))
 		}
 	}
 }

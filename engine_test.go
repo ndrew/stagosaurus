@@ -14,7 +14,11 @@ func TestEngine(t *testing.T) {
 	postsFactory := new(FolderPostFactory)
 	postsFactory.PostsDir = "test_data/posts"
 
-	posts := postsFactory.GetPosts()
+	posts, err := postsFactory.GetPosts()
+	if err != nil {
+		t.Error(err)
+	}
+
 	if len(posts) < 1 {
 		t.Errorf("No test posts have been found in %s", postsFactory.PostsDir)
 	}
