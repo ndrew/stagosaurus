@@ -21,19 +21,26 @@ func New(cfg *Config, renderer Renderer, posts []*Post) *Engine {
 	}
 }
 
-func (self Engine) Publish() { // TODO: add err handling
-	err := self.renderer.RenderStarted()
-	if err == nil {
-		println("error while starting rendering")
+func (self Engine) Publish() (err error) { // TODO: add err handling
+	e := self.renderer.RenderStarted()
+	if e != nil {
+		return e
 	}
 
 	for _, post := range self.posts {
 		if post.Meta.Ready {
-			self.renderer.Render(post)
+			e = self.renderer.Render(post)
+			if e != nil {
+				return e
+			}
 		}
 	}
 
-	self.renderer.RenderEnded()
+	e = self.renderer.RenderEnded()
+	if e != nil {
+		return e
+	}
+	return nil
 }
 
 func (self Engine) NewPost(postName string) {

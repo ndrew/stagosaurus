@@ -4,7 +4,10 @@ import "testing"
 
 func TestEngine(t *testing.T) {
 	cfg := new(Config)
-	cfg.BaseUrl = "http://localhost:666/blog/"
+	err := cfg.ReadConfig("test_data/sample-config.json")
+	if err != nil {
+		t.Error(err)
+	}
 
 	renderingStrategy := new(RenderingStrategy)
 
@@ -13,10 +16,10 @@ func TestEngine(t *testing.T) {
 
 	posts := postsFactory.GetPosts()
 
-	//t.Fail()
-
 	engine := New(cfg, renderingStrategy, posts)
-	engine.Publish()
+	err = engine.Publish()
+	if err != nil {
+		t.Error(err)
+	}
 
-	return
 }
