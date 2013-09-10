@@ -1,6 +1,7 @@
 package blog
 
 import (
+	"encoding/json"
 	"regexp"
 	"time"
 )
@@ -11,7 +12,7 @@ import (
 // metadata
 // -->
 //
-var metadataRE = *regexp.MustCompile("(?s)^(<!--!\n(.+)\n-->)")
+var metadataRE = *regexp.MustCompile("([ \t]?)(<!--!\n(.+)\n-->)")
 
 // Additional information about blog entry 
 // 
@@ -21,4 +22,13 @@ type Meta struct {
 	Date    time.Time
 	Url     string
 	Summary string
+}
+
+func (self *Meta) FromString(data string) error {
+	if m := metadataRE.FindStringSubmatch(data); m != nil {
+		header := []byte(m[3])
+		return json.Unmarshal(header, self)
+	}
+	// set default meta?
+	return nil
 }
