@@ -2,6 +2,27 @@ package blog
 
 import "testing"
 
+// rendering strategy that doesn't render anything
+type DummyRenderingStrategy struct {
+	posts *Post
+	log   string
+}
+
+func (self *DummyRenderingStrategy) Render(post *Post) error {
+	self.log += "<render>"
+	return nil
+}
+
+func (self *DummyRenderingStrategy) RenderStarted() error {
+	self.log += "<start>"
+	return nil
+}
+
+func (self *DummyRenderingStrategy) RenderEnded() error {
+	self.log += "<end>"
+	return nil
+}
+
 func TestEngine(t *testing.T) {
 	cfg := new(Config)
 	err := cfg.ReadConfig("test_data/sample-config.json")
@@ -9,24 +30,22 @@ func TestEngine(t *testing.T) {
 		t.Error(err)
 	}
 
-	renderingStrategy := new(RenderingStrategy)
+	posts := getTestPosts(t)
+	renderingStrategy := new(DummyRenderingStrategy)
 
-	postsFactory := new(FileSystem)
-	postsFactory.PostsDir = "test_data/posts"
-
-	posts, err := postsFactory.GetPosts()
+	blog := New(cfg, renderingStrategy, posts)
+	err = blog.Publish()
 	if err != nil {
 		t.Error(err)
 	}
 
-	if len(posts) < 1 {
-		t.Errorf("No test posts have been found in %s", postsFactory.PostsDir)
+	log := "<start>"
+	for i := 0; i < len(posts); i++ {
+		log += "<render>"
 	}
+	log += "<end>"
 
-	engine := New(cfg, renderingStrategy, posts)
-	err = engine.Publish()
-	if err != nil {
-		t.Error(err)
+	if renderingStrategy.log != log {
+		t.Errorf("renderering was done not as expected '%v' vs '%v' ", log, renderingStrategy.log)
 	}
-
 }

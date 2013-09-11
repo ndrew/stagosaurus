@@ -28,11 +28,10 @@ func (self Engine) Publish() (err error) { // TODO: add err handling
 	}
 
 	for _, post := range self.posts {
-		if post.Meta.Ready {
-			e = self.renderer.Render(post)
-			if e != nil {
-				return e
-			}
+		// don't use post.Meta.Ready for more generic behaviour 
+		e = self.renderer.Render(post)
+		if e != nil {
+			return e
 		}
 	}
 

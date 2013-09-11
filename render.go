@@ -1,5 +1,9 @@
 package blog
 
+import (
+	"text/template"
+)
+
 // 'Renderer' interface. Renderer in wide sence: markdown posts -> render -> html files.
 //
 type Renderer interface {
@@ -11,9 +15,16 @@ type Renderer interface {
 // 'Composite' rendering strategy, renders each ready post + table of contents(i.e. index.html) and rss stream  
 //
 type RenderingStrategy struct {
+	cfg *Config
 	// Renderers []Renderer
-	// indexTemplate *template.Template
-	// postTemplate  *template.Template
+	indexTemplate *template.Template
+	postTemplate  *template.Template
+}
+
+// Constructor
+//
+func NewRendererStrategy(cfg *Config, renderer Renderer, posts []*Post) *RenderingStrategy {
+	return &RenderingStrategy{}
 }
 
 func (self *RenderingStrategy) Render(post *Post) error {
