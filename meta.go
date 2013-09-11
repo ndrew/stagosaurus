@@ -22,6 +22,7 @@ type Meta struct {
 	Date    time.Time
 	Url     string
 	Summary string
+	// 
 }
 
 func (self *Meta) FromString(data string) error {
