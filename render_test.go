@@ -10,6 +10,10 @@ import (
 func TestDefaultRenderingStrategy(t *testing.T) {
 	renderer := new(RenderingStrategy)
 
+	renderer.cfg = new(Config)
+	renderer.cfg.BaseUrl = "http://localhost"
+	renderer.cfg.Port = ":8080"
+
 	var err error
 
 	// more about go template syntax - http://golang.org/pkg/text/template/
@@ -18,7 +22,7 @@ func TestDefaultRenderingStrategy(t *testing.T) {
 	//template.ParseFiles("test_data/templates/index.template")
 	assertNoError(err, t)
 
-	renderer.postTemplate, err = template.New("post").Parse("{{.Name}}:{{.Content}}")
+	renderer.postTemplate, err = template.New("post").Parse("{{.cfg.BaseUrl}}\n{{.Name}}:{{.Content}}")
 	// template.ParseFiles("test_data/templates/post.template")
 	assertNoError(err, t)
 
@@ -40,7 +44,6 @@ func TestDefaultRenderingStrategy(t *testing.T) {
 
 	renderer.RenderEnded()
 
-	// todo: template loading
-
-	//t.Error("todo: template loading")
+	// renderer.Posts
+	// t.Error(renderer.Posts)
 }

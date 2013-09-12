@@ -12,6 +12,8 @@ type Renderer interface {
 	Render(post *Post) error
 	RenderStarted() error
 	RenderEnded() error
+
+	GetPosts() []*Post
 }
 
 // 'Composite' rendering strategy, renders each ready post + table of contents(i.e. index.html) and rss stream  
@@ -83,5 +85,10 @@ func (self *RenderingStrategy) RenderEnded() error {
 	// make index 
 	//self.Index = "test"
 	return nil
+}
 
+//
+//
+func (self *RenderingStrategy) GetPosts() []*Post {
+	return self.Posts
 }

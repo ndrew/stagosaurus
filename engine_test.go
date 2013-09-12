@@ -29,6 +29,10 @@ func (self *DummyRenderingStrategy) RenderEnded() error {
 	return nil
 }
 
+func (self *DummyRenderingStrategy) GetPosts() []*Post {
+	return []*Post{}
+}
+
 func TestEngine(t *testing.T) {
 	cfg := new(Config)
 	err := cfg.ReadConfig("test_data/sample-config.json")

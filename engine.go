@@ -6,9 +6,11 @@ package blog
 // Core of the blog
 //
 type Engine struct {
-	cfg      *Config
+	cfg   *Config
+	posts []*Post
+
 	renderer Renderer
-	posts    []*Post
+	deployer Deployer
 }
 
 // Constructor
