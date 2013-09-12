@@ -1,8 +1,10 @@
 package blog
 
 import (
+	"fmt"
 	"testing"
 	"text/template"
+	"time"
 )
 
 func TestDefaultRenderingStrategy(t *testing.T) {
@@ -16,21 +18,25 @@ func TestDefaultRenderingStrategy(t *testing.T) {
 	//template.ParseFiles("test_data/templates/index.template")
 	assertNoError(err, t)
 
-	renderer.postTemplate, err = template.New("post").Parse("Bar")
+	renderer.postTemplate, err = template.New("post").Parse("{{.Name}}:{{.Content}}")
 	// template.ParseFiles("test_data/templates/post.template")
 	assertNoError(err, t)
 
 	err = renderer.RenderStarted()
 	assertNoError(err, t)
 
-	post := new(Post)
-	post.Content = "I am content"
-	post.Name = "Dummy"
+	var post *Post
+	for i := 1; i < 5; i++ {
+		post = new(Post)
+		post.Content = fmt.Sprintf("Content %v", i)
+		post.Name = fmt.Sprintf("Post#%v", i)
 
-	//post.Meta := new(Meta)
-	//post.Meta.Ready = true
+		post.Meta = new(Meta)
+		post.Meta.Ready = true
+		post.Meta.Date = time.Now().Add(time.Duration(i*60) * time.Second)
 
-	renderer.Render(post)
+		renderer.Render(post)
+	}
 
 	renderer.RenderEnded()
 

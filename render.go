@@ -22,22 +22,19 @@ type RenderingStrategy struct {
 	indexTemplate *template.Template
 	postTemplate  *template.Template
 	// results
-	index string
-	posts []string
-
-	_meta []*Meta // for sorting
-
+	IndexPage *Post
+	Posts     []*Post
 }
 
 ////////////////////////////
 // sort.Interface impl
 
 func (s *RenderingStrategy) Len() int {
-	return len(s.posts)
+	return len(s.Posts)
 }
 
 func (s *RenderingStrategy) Swap(i, j int) {
-	s.posts[i], s.posts[j] = s.posts[j], s.posts[i]
+	s.Posts[i], s.Posts[j] = s.Posts[j], s.Posts[i]
 }
 
 func (s *RenderingStrategy) Less(i, j int) bool {
@@ -48,7 +45,7 @@ func (s *RenderingStrategy) Less(i, j int) bool {
 //
 func (s *RenderingStrategy) sortMethod(i, j int) bool {
 	// todo: add nil check
-	return s._meta[i].Date.Before(s._meta[j].Date)
+	return s.Posts[i].Meta.Date.After(s.Posts[j].Meta.Date)
 }
 
 ////////////////////////////
@@ -62,15 +59,18 @@ func (self *RenderingStrategy) Render(post *Post) error {
 	self.postTemplate.Execute(&html, post)
 
 	// store meta for further sorting
-	self._meta = append(self._meta, post.Meta)
-	self.posts = append(self.posts, html.String())
+	newPost := new(Post)
+	newPost.Meta = post.Meta
+	newPost.Content = html.String()
+
+	self.Posts = append(self.Posts, newPost)
 	return nil
 }
 
 //
 //
 func (self *RenderingStrategy) RenderStarted() error {
-	self.posts = []string{}
+	self.Posts = []*Post{}
 	return nil
 }
 
@@ -81,7 +81,7 @@ func (self *RenderingStrategy) RenderEnded() error {
 	sort.Sort(self)
 
 	// make index 
-	self.index = "test"
+	//self.Index = "test"
 	return nil
 
 }
