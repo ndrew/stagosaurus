@@ -49,6 +49,10 @@ func (self Engine) Publish() (err error) { // TODO: add err handling
 		return e
 	}
 
+	if e = self.deployer.Deploy(self.renderer.GetPosts()); e != nil {
+		return e
+	}
+
 	// todo: use
 	return nil
 }

@@ -30,15 +30,20 @@ func (self *DummyRenderingStrategy) RenderEnded() error {
 }
 
 func (self *DummyRenderingStrategy) GetPosts() []*Post {
-	return []*Post{}
+	dummy := new(Post)
+	dummy.Name = "DUMMY"
+	return []*Post{dummy}
 }
 
 //
 type DummyDeployer struct {
+	t *testing.T
 }
 
 func (self *DummyDeployer) Deploy(posts []*Post) error {
-	//
+	if len(posts) != 1 {
+		self.t.Error("incorrect posts passed to deployer")
+	}
 	return nil
 }
 
@@ -56,6 +61,7 @@ func TestEngine(t *testing.T) {
 	renderingStrategy := new(DummyRenderingStrategy)
 
 	deployer := new(DummyDeployer)
+	deployer.t = t
 
 	blog := New(cfg, postsFactory, renderingStrategy, deployer)
 	err = blog.Publish()
