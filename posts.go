@@ -8,7 +8,7 @@ import (
 //
 type Post struct {
 	Content string
-	Meta    Meta
+	Meta    *Meta
 	Name    string
 }
 
