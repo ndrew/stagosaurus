@@ -33,15 +33,30 @@ func (self *DummyRenderingStrategy) GetPosts() []*Post {
 	return []*Post{}
 }
 
+//
+type DummyDeployer struct {
+}
+
+func (self *DummyDeployer) Deploy(posts []*Post) error {
+	//
+	return nil
+}
+
 func TestEngine(t *testing.T) {
 	cfg := new(Config)
 	err := cfg.ReadConfig("test_data/sample-config.json")
 	assertNoError(err, t)
 
-	posts := getTestPosts(t)
+	postsFactory := new(FileSystem)
+	postsFactory.PostsDir = "test_data/posts"
+	posts, err := postsFactory.GetPosts()
+	assertNoError(err, t)
+
 	renderingStrategy := new(DummyRenderingStrategy)
 
-	blog := New(cfg, renderingStrategy, posts)
+	deployer := new(DummyDeployer)
+
+	blog := New(cfg, postsFactory, renderingStrategy, deployer)
 	err = blog.Publish()
 	assertNoError(err, t)
 

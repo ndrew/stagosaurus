@@ -6,19 +6,21 @@ package blog
 // Core of the blog
 //
 type Engine struct {
-	cfg   *Config
-	posts []*Post
+	cfg *Config
+	// posts []*Post
 
+	posts    PostFactory
 	renderer Renderer
 	deployer Deployer
 }
 
 // Constructor
 //
-func New(cfg *Config, renderer Renderer, posts []*Post) *Engine {
+func New(cfg *Config, posts PostFactory, renderer Renderer, deployer Deployer) *Engine {
 	return &Engine{
 		cfg:      cfg,
 		renderer: renderer,
+		deployer: deployer,
 		posts:    posts,
 	}
 }
@@ -29,7 +31,12 @@ func (self Engine) Publish() (err error) { // TODO: add err handling
 		return e
 	}
 
-	for _, post := range self.posts {
+	posts, e := self.posts.GetPosts()
+	if e != nil {
+		return e
+	}
+
+	for _, post := range posts {
 		// don't use post.Meta.Ready for more generic behaviour 
 		e = self.renderer.Render(post)
 		if e != nil {
@@ -41,6 +48,8 @@ func (self Engine) Publish() (err error) { // TODO: add err handling
 	if e != nil {
 		return e
 	}
+
+	// todo: use
 	return nil
 }
 

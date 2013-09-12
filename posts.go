@@ -1,9 +1,5 @@
 package blog
 
-import (
-	"fmt"
-)
-
 // Blog entry
 //
 type Post struct {
@@ -16,7 +12,7 @@ type Post struct {
 //
 type PostFactory interface {
 	GetPosts() ([]*Post, error)
-	New(string) (*Post, error)
+	New(string, string) (*Post, error)
 }
 
 /////////////////////////
@@ -28,30 +24,26 @@ type FileSystem struct {
 	PostsDir string
 }
 
-func (self FileSystem) New(data string, name string) *Post {
+func (self FileSystem) New(data string, name string) (*Post, error) {
 	post := new(Post)
 	post.Content = data
 	post.Name = name
 	// TODO: init meta
-	return post
+	return post, nil
 }
 
-func (self FileSystem) GetPosts() ([]*Post, error) {
-	posts := []*Post{}
-	var err error = nil
+func (self FileSystem) GetPosts() (posts []*Post, err error) {
 
 	callback := func(file *file) {
 		if file.isMarkdown() {
 			contents, err := file.Contents()
 			if err != nil {
-				fmt.Println(err)
 				return
 			}
-			post := self.New(string(*contents), "Untitled")
+			post, err := self.New(string(*contents), "Untitled")
 			posts = append(posts, post)
 		}
 	}
 	traverseFiles(self.PostsDir, callback)
-	// get posts
-	return posts, err
+	return
 }
