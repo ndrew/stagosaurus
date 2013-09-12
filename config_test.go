@@ -1,4 +1,4 @@
-package blog
+package stagosaurus
 
 import (
 	"errors"
@@ -25,7 +25,7 @@ func toValue(t reflect.Value) reflect.Value {
 }
 
 // simple structure diff
-// 
+//
 func structDiff(a interface{}, b interface{}) (err error) {
 	var typeA reflect.Type = toValueType(reflect.TypeOf(a))
 	var typeB reflect.Type = toValueType(reflect.TypeOf(b))

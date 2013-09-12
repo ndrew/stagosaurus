@@ -1,4 +1,4 @@
-package blog
+package stagosaurus
 
 import "testing"
 
@@ -48,6 +48,7 @@ func TestEngine(t *testing.T) {
 	assertNoError(err, t)
 
 	postsFactory := new(FileSystem)
+
 	postsFactory.PostsDir = "test_data/posts"
 	posts, err := postsFactory.GetPosts()
 	assertNoError(err, t)

@@ -1,7 +1,7 @@
 /*
-   The blog package is a library for building static generated sites, usually blogs. 
+   The blog package is a library for building static generated sites, usually blogs.
 */
-package blog
+package stagosaurus
 
 // Core of the blog
 //
@@ -37,7 +37,7 @@ func (self Engine) Publish() (err error) { // TODO: add err handling
 	}
 
 	for _, post := range posts {
-		// don't use post.Meta.Ready for more generic behaviour 
+		// don't use post.Meta.Ready for more generic behaviour
 		e = self.renderer.Render(post)
 		if e != nil {
 			return e

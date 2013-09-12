@@ -1,4 +1,4 @@
-package blog
+package stagosaurus
 
 import (
 	"io/ioutil"
@@ -50,7 +50,7 @@ func concatFilePaths(path1 string, path2 string) string {
 	return strings.TrimSuffix(path1, separator) + separator + strings.TrimPrefix(path2, separator)
 }
 
-// traverses files in directory and runs a callback 
+// traverses files in directory and runs a callback
 //
 func traverseFiles(dir string, callback func(*file)) {
 	files, err := ioutil.ReadDir(dir)

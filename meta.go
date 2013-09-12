@@ -1,4 +1,4 @@
-package blog
+package stagosaurus
 
 import (
 	"encoding/json"
@@ -7,22 +7,22 @@ import (
 )
 
 // metadata goes like this
-// 
+//
 // <!--!
 // metadata
 // -->
 //
 var metadataRE = *regexp.MustCompile("([ \t]?)(<!--!\n(.+)\n-->)")
 
-// Additional information about blog entry 
-// 
+// Additional information about blog entry
+//
 type Meta struct {
 	Ready   bool
 	Title   string
 	Date    time.Time
 	Url     string
 	Summary string
-	// 
+	//
 }
 
 func (self *Meta) FromString(data string) error {

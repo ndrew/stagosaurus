@@ -1,4 +1,4 @@
-package blog
+package stagosaurus
 
 // Blog entry
 //
@@ -16,7 +16,7 @@ type PostFactory interface {
 }
 
 /////////////////////////
-// I M P L 
+// I M P L
 
 // Post iterator from filesystem
 //

@@ -1,1 +1,1 @@
-package blog
+package stagosaurus

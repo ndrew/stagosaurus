@@ -1,4 +1,4 @@
-package blog
+package stagosaurus
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ type Renderer interface {
 	GetPosts() []*Post
 }
 
-// 'Composite' rendering strategy, renders each ready post + table of contents(i.e. index.html) and rss stream  
+// 'Composite' rendering strategy, renders each ready post + table of contents(i.e. index.html) and rss stream
 //
 type RenderingStrategy struct {
 	cfg *Config
@@ -79,10 +79,10 @@ func (self *RenderingStrategy) RenderStarted() error {
 //
 //
 func (self *RenderingStrategy) RenderEnded() error {
-	// sort posts by date	
+	// sort posts by date
 	sort.Sort(self)
 
-	// make index 
+	// make index
 	//self.Index = "test"
 	return nil
 }

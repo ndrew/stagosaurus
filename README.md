@@ -1,4 +1,5 @@
-blog
+stagosaurus
 ====
+[[/stagosaurus.png]]
 
-A simple static blog engine implemented in go
+A simple static site engine implemented in go
