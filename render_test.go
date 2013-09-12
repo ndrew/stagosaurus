@@ -9,10 +9,15 @@ func TestDefaultRenderingStrategy(t *testing.T) {
 	renderer := new(RenderingStrategy)
 
 	var err error
-	renderer.indexTemplate, err = template.ParseFiles("test_data/templates/index.template")
+
+	// more about go template syntax - http://golang.org/pkg/text/template/
+
+	renderer.indexTemplate, err = template.New("index").Parse("Foo")
+	//template.ParseFiles("test_data/templates/index.template")
 	assertNoError(err, t)
 
-	renderer.postTemplate, err = template.ParseFiles("test_data/templates/post.template")
+	renderer.postTemplate, err = template.New("post").Parse("Bar")
+	// template.ParseFiles("test_data/templates/post.template")
 	assertNoError(err, t)
 
 	err = renderer.RenderStarted()
