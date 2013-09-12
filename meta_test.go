@@ -18,10 +18,7 @@ func TestNewMeta(t *testing.T) {
 	meta := new(Meta)
 
 	err := meta.FromString("<!--!\n{\"Ready\":true}\n-->")
-
-	if err != nil {
-		t.Error(err)
-	}
+	assertNoError(err, t)
 
 	if meta.Ready == false {
 		t.Error("incorrectly parsed json")
@@ -29,10 +26,7 @@ func TestNewMeta(t *testing.T) {
 
 	// time testing
 	err = meta.FromString("<!--!\n{\"Date\":\"2013-01-22T10:30:55Z\"}\n-->")
-
-	if err != nil {
-		t.Error(err)
-	}
+	assertNoError(err, t)
 
 	if "2013-01-22 10:30:55 +0000 UTC" != meta.Date.String() {
 		t.Error("incorrecly interpretated date")

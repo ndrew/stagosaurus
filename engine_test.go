@@ -2,6 +2,12 @@ package blog
 
 import "testing"
 
+func assertNoError(err error, t *testing.T) {
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 // rendering strategy that doesn't render anything
 type DummyRenderingStrategy struct {
 	posts *Post
@@ -26,18 +32,14 @@ func (self *DummyRenderingStrategy) RenderEnded() error {
 func TestEngine(t *testing.T) {
 	cfg := new(Config)
 	err := cfg.ReadConfig("test_data/sample-config.json")
-	if err != nil {
-		t.Error(err)
-	}
+	assertNoError(err, t)
 
 	posts := getTestPosts(t)
 	renderingStrategy := new(DummyRenderingStrategy)
 
 	blog := New(cfg, renderingStrategy, posts)
 	err = blog.Publish()
-	if err != nil {
-		t.Error(err)
-	}
+	assertNoError(err, t)
 
 	log := "<start>"
 	for i := 0; i < len(posts); i++ {

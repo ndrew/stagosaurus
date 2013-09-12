@@ -77,16 +77,12 @@ func TestDiff(t *testing.T) {
 
 	c1 := new(Config)
 	err = structDiff(c1, c1)
-	if err != nil {
-		t.Error("diff of two same structs should be empty")
-	}
+	assertNoError(err, t)
 
 	c2 := new(Config)
 
 	err = structDiff(c1, c2)
-	if err != nil {
-		t.Error("diff of two same structs should be empty")
-	}
+	assertNoError(err, t)
 
 }
 
@@ -96,9 +92,7 @@ func TestConfig(t *testing.T) {
 	config := new(Config)
 	err := config.ReadConfig("test_data/sample-config.json")
 
-	if err != nil {
-		t.Error("Error while reading test config")
-	}
+	assertNoError(err, t)
 
 	testConfig := new(Config)
 	testConfig.BaseUrl = "http://localhost"
@@ -106,9 +100,7 @@ func TestConfig(t *testing.T) {
 
 	if !reflect.DeepEqual(config, testConfig) {
 		err = structDiff(config, testConfig)
-		if err != nil {
-			t.Error(err)
-		}
+		assertNoError(err, t)
 	}
 
 }

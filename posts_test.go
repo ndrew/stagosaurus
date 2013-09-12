@@ -8,9 +8,7 @@ func getTestPosts(t *testing.T) []*Post {
 	postsFactory.PostsDir = "test_data/posts"
 
 	posts, err := postsFactory.GetPosts()
-	if err != nil {
-		t.Error(err)
-	}
+	assertNoError(err, t)
 	if len(posts) < 1 {
 		t.Errorf("No test posts have been found in %s", postsFactory.PostsDir)
 	}
@@ -19,11 +17,15 @@ func getTestPosts(t *testing.T) []*Post {
 
 func TestPostNew(t *testing.T) {
 	postsFactory := new(FileSystem)
-	post := postsFactory.New("testo")
+	post := postsFactory.New("testo", "Untitled")
 
 	if post.Content != "testo" {
 		t.Errorf("%s <> %s", post.Content, "testo")
 	}
+	if post.Name != "Untitled" {
+		t.Errorf("%s <> %s", post.Name, "Untitled")
+	}
+
 }
 
 func TestPosts(t *testing.T) {

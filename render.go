@@ -1,6 +1,7 @@
 package blog
 
 import (
+	"bytes"
 	"text/template"
 )
 
@@ -19,26 +20,29 @@ type RenderingStrategy struct {
 	// Renderers []Renderer
 	indexTemplate *template.Template
 	postTemplate  *template.Template
-}
-
-// Constructor
-//
-func NewRendererStrategy(cfg *Config, renderer Renderer, posts []*Post) *RenderingStrategy {
-	return &RenderingStrategy{}
+	// results
+	index string
+	posts []string
 }
 
 func (self *RenderingStrategy) Render(post *Post) error {
+	var html bytes.Buffer
+	self.postTemplate.Execute(&html, post)
+
+	self.posts = append(self.posts, html.String())
 	return nil
 }
 
 func (self *RenderingStrategy) RenderStarted() error {
-	println("RenderStarted")
+	self.posts = []string{}
 	return nil
 }
 
 func (self *RenderingStrategy) RenderEnded() error {
-	println("RenderEnded")
-	// flush changes here 
+	// sort posts by date	
+
+	// make index 
+	self.index = "test"
 	return nil
 
 }

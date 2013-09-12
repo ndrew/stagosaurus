@@ -9,6 +9,7 @@ import (
 type Post struct {
 	Content string
 	Meta    Meta
+	Name    string
 }
 
 // Post retrival
@@ -27,9 +28,10 @@ type FileSystem struct {
 	PostsDir string
 }
 
-func (self FileSystem) New(data string) *Post {
+func (self FileSystem) New(data string, name string) *Post {
 	post := new(Post)
 	post.Content = data
+	post.Name = name
 	// TODO: init meta
 	return post
 }
@@ -45,7 +47,7 @@ func (self FileSystem) GetPosts() ([]*Post, error) {
 				fmt.Println(err)
 				return
 			}
-			post := self.New(string(*contents))
+			post := self.New(string(*contents), "Untitled")
 			posts = append(posts, post)
 		}
 	}
