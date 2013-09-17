@@ -12,7 +12,7 @@ func assertNoError(err error, t *testing.T) {
 
 // mocked blog engine
 //
-type FakeEngine struct {
+type FakeGenerator struct {
 	t *testing.T
 	c *Config
 
@@ -21,56 +21,65 @@ type FakeEngine struct {
 	log string
 }
 
-func (self *FakeEngine) Render(post *Post) error {
+// dummy implementation of Renderer
+
+func (self *FakeGenerator) Render(post *Post) error {
 	self.log += "<render>"
 	return nil
 }
 
-func (self *FakeEngine) RenderStarted() error {
+func (self *FakeGenerator) RenderStarted() error {
 	self.log += "<start>"
 	return nil
 }
 
-func (self *FakeEngine) RenderEnded() error {
+func (self *FakeGenerator) RenderEnded() error {
 	self.log += "<end>"
 	return nil
 }
 
-// renderer
-func (self *FakeEngine) GetRenderedPosts() ([]*Post, error) {
+func (self *FakeGenerator) GetRenderedPosts() ([]*Post, error) {
 	dummy := new(Post)
 	dummy.Name = "DUMMY"
 	return []*Post{dummy}, nil
 }
 
-func (self *FakeEngine) Deploy(posts []*Post) error {
+// dummy implementation of Deployer
+
+func (self *FakeGenerator) Deploy(posts []*Post) error {
 	if len(posts) != 1 {
 		self.t.Error("incorrect posts passed to deployer")
 	}
 	return nil
 }
 
-func (self *FakeEngine) GetConfig() *Config {
+// dummy implementation of Configurable
+
+func (self *FakeGenerator) GetConfig() *Config {
 	return self.c
 }
 
-func (self *FakeEngine) New(data string, name string) (*Post, error) {
+// dummy implementation of Posts
+
+func (self *FakeGenerator) New(data string, name string) (*Post, error) {
 	return self.posts.New(data, name)
 }
 
-// posts
-func (self *FakeEngine) GetPosts() (posts []*Post, err error) {
+func (self *FakeGenerator) GetPosts() (posts []*Post, err error) {
 	return self.posts.GetPosts()
 }
 
-func getFakeImpl(t *testing.T) *FakeEngine {
+//
+
+func getFakeImpl(t *testing.T) *FakeGenerator {
 	cfg := new(Config)
+	// maybe use config created by hand?
 	cfg.ReadConfig("test_data/sample-config.json")
 
 	postsFactory := new(FileSystem)
 	postsFactory.PostsDir = "test_data/posts"
 
-	dummy := new(FakeEngine)
+	dummy := new(FakeGenerator)
 	dummy.c = cfg
 	dummy.t = t
 	dummy.posts = postsFactory
@@ -78,7 +87,7 @@ func getFakeImpl(t *testing.T) *FakeEngine {
 	return dummy
 }
 
-func testEngine(blog *Engine, dummy *FakeEngine, t *testing.T) {
+func testGeneratorFunctionality(blog *Generator, dummy *FakeGenerator, t *testing.T) {
 	posts, err := dummy.posts.GetPosts()
 	assertNoError(err, t)
 
@@ -96,8 +105,51 @@ func testEngine(blog *Engine, dummy *FakeEngine, t *testing.T) {
 	}
 }
 
-func TestEngine(t *testing.T) {
+// test basic operation
+//
+func TestGenerator(t *testing.T) {
 	dummy := getFakeImpl(t)
-	blog := New(dummy, dummy, dummy, dummy)
-	testEngine(blog, dummy, t)
+	blog := NewGenerator(dummy, dummy, dummy, dummy)
+	testGeneratorFunctionality(blog, dummy, t)
+}
+
+// test basic operation
+//
+func TestGeneratorCreation(t *testing.T) {
+	dummy := getFakeImpl(t)
+	blog, err := New(dummy)
+	assertNoError(err, t)
+
+	testGeneratorFunctionality(blog, dummy, t)
+
+	blog, err = New("foo")
+	if nil != blog || nil == err {
+		t.Error("error should be thrown on site creation")
+	}
+
+	blog, err = New("foo", "bar", "buzz")
+	if nil != blog || nil == err {
+		t.Error("error should be thrown on site creation")
+	}
+
+	blog, err = New("foo", "bar", "buzz")
+	if nil != blog || nil == err {
+		t.Error("error should be thrown on site creation")
+	}
+
+	blog, err = New("foo", "bar", new(FileSystem), "buzz")
+	if nil != blog || nil == err {
+		t.Error("error should be thrown on site creation")
+	}
+
+	blog, err = New("foo", "bar", new(FileSystem), "buzz", new(RenderingStrategy))
+	if nil != blog || nil == err {
+		t.Error("error should be thrown on site creation")
+	}
+
+	blog, err = New("foo", "bar", new(FileSystem), "buzz", new(RenderingStrategy), dummy)
+	if nil == blog || nil != err {
+		t.Error("no error should be thrown on site creation")
+	}
+
 }

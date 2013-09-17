@@ -10,7 +10,7 @@ import (
 
 // Core of the blog
 //
-type Engine struct {
+type Generator struct {
 	cfg Configurable
 	// posts []*Post
 
@@ -21,7 +21,7 @@ type Engine struct {
 
 // generic constructor
 //
-func Create(args ...interface{}) (*Engine, error) {
+func New(args ...interface{}) (*Generator, error) {
 	var (
 		config   Configurable = nil
 		posts    Posts        = nil
@@ -47,13 +47,13 @@ func Create(args ...interface{}) (*Engine, error) {
 		return nil, errors.New(fmt.Sprintf("stagosaurus.Create(...) error: Some of needed interfaces hadn't been provided\nconfig\t%v\nposts\t%v\nrenderer\t%v\ndeployer\t%v", config, posts, renderer, deployer))
 	}
 
-	return New(config, posts, renderer, deployer), nil
+	return NewGenerator(config, posts, renderer, deployer), nil
 }
 
 // Full constructor
 //
-func New(cfg Configurable, posts Posts, renderer Renderer, deployer Deployer) *Engine {
-	return &Engine{
+func NewGenerator(cfg Configurable, posts Posts, renderer Renderer, deployer Deployer) *Generator {
+	return &Generator{
 		cfg:      cfg,
 		renderer: renderer,
 		deployer: deployer,
@@ -63,7 +63,7 @@ func New(cfg Configurable, posts Posts, renderer Renderer, deployer Deployer) *E
 
 // regenerates website files
 //
-func (self Engine) Publish() (err error) { // TODO: add err handling
+func (self Generator) Publish() (err error) { // TODO: add err handling
 	// 1) get posts
 	posts, e := self.posts.GetPosts()
 	if e != nil {
@@ -102,15 +102,15 @@ func (self Engine) Publish() (err error) { // TODO: add err handling
 	return nil
 }
 
-func (self Engine) NewPost(postName string) {
+func (self Generator) NewPost(postName string) {
 	println(postName)
 }
 
-func (self Engine) EditPost(postName string) {
+func (self Generator) EditPost(postName string) {
 	println(postName)
 }
 
-func (self Engine) RunServer(dir string, port string) { // "."
+func (self Generator) RunServer(dir string, port string) { // "."
 	//port.star
 	runServer(dir, port)
 }
