@@ -2,21 +2,23 @@ package stagosaurus
 
 import "testing"
 
+// custom assertion
+//
 func assertNoError(err error, t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
 }
 
-// mocked engine
+// mocked blog engine
 //
 type FakeEngine struct {
-	log string
-
 	t *testing.T
 	c *Config
 
-	posts PostFactory
+	posts Posts
+
+	log string
 }
 
 func (self *FakeEngine) Render(post *Post) error {
@@ -61,25 +63,24 @@ func (self *FakeEngine) GetPosts() (posts []*Post, err error) {
 	return self.posts.GetPosts()
 }
 
-func TestEngine(t *testing.T) {
+func getFakeImpl(t *testing.T) *FakeEngine {
 	cfg := new(Config)
-	err := cfg.ReadConfig("test_data/sample-config.json")
-	assertNoError(err, t)
+	cfg.ReadConfig("test_data/sample-config.json")
 
 	postsFactory := new(FileSystem)
 	postsFactory.PostsDir = "test_data/posts"
-	posts, err := postsFactory.GetPosts()
-	assertNoError(err, t)
 
 	dummy := new(FakeEngine)
 	dummy.c = cfg
 	dummy.t = t
 	dummy.posts = postsFactory
 
-	blog := New(dummy, dummy, dummy, dummy)
+	return dummy
+}
 
-	blog1 := Create(dummy)
-	println(blog1)
+func testEngine(blog *Engine, dummy *FakeEngine, t *testing.T) {
+	posts, err := dummy.posts.GetPosts()
+	assertNoError(err, t)
 
 	err = blog.Publish()
 	assertNoError(err, t)
@@ -93,4 +94,10 @@ func TestEngine(t *testing.T) {
 	if dummy.log != log {
 		t.Errorf("renderering was done not as expected '%v' vs '%v' ", log, dummy.log)
 	}
+}
+
+func TestEngine(t *testing.T) {
+	dummy := getFakeImpl(t)
+	blog := New(dummy, dummy, dummy, dummy)
+	testEngine(blog, dummy, t)
 }

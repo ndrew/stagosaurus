@@ -3,56 +3,56 @@
 */
 package stagosaurus
 
+import (
+	"errors"
+	"fmt"
+)
+
 // Core of the blog
 //
 type Engine struct {
 	cfg Configurable
 	// posts []*Post
 
-	posts    PostFactory
+	posts    Posts
 	renderer Renderer
 	deployer Deployer
 }
 
 // generic constructor
 //
-func Create(args ...interface{}) *Engine {
+func Create(args ...interface{}) (*Engine, error) {
 	var (
 		config   Configurable = nil
-		posts    PostFactory  = nil
+		posts    Posts        = nil
 		renderer Renderer     = nil
 		deployer Deployer     = nil
 	)
 	for _, arg := range args {
-		// do the switch uglyness to get all interfaces
-
-		switch v := arg.(type) {
-		case Configurable:
+		if v, ok := arg.(Configurable); ok {
 			config = v
 		}
-
-		switch v := arg.(type) {
-		case PostFactory:
+		if v, ok := arg.(Posts); ok {
 			posts = v
 		}
-
-		switch v := arg.(type) {
-		case Renderer:
+		if v, ok := arg.(Renderer); ok {
 			renderer = v
 		}
-
-		switch v := arg.(type) {
-		case Deployer:
+		if v, ok := arg.(Deployer); ok {
 			deployer = v
 		}
 	}
 
-	return New(config, posts, renderer, deployer)
+	if nil == config || nil == posts || nil == renderer || nil == deployer {
+		return nil, errors.New(fmt.Sprintf("stagosaurus.Create(...) error: Some of needed interfaces hadn't been provided\nconfig\t%v\nposts\t%v\nrenderer\t%v\ndeployer\t%v", config, posts, renderer, deployer))
+	}
+
+	return New(config, posts, renderer, deployer), nil
 }
 
 // Full constructor
 //
-func New(cfg Configurable, posts PostFactory, renderer Renderer, deployer Deployer) *Engine {
+func New(cfg Configurable, posts Posts, renderer Renderer, deployer Deployer) *Engine {
 	return &Engine{
 		cfg:      cfg,
 		renderer: renderer,

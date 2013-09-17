@@ -8,9 +8,9 @@ type Post struct {
 	Name    string
 }
 
-// Post retrival
+// Posts interface
 //
-type PostFactory interface {
+type Posts interface {
 	GetPosts() ([]*Post, error)
 	New(string, string) (*Post, error)
 }
