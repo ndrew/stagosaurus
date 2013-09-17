@@ -3,8 +3,6 @@
 */
 package stagosaurus
 
-//import "reflect"
-
 // Core of the blog
 //
 type Engine struct {
@@ -26,19 +24,26 @@ func Create(args ...interface{}) *Engine {
 		deployer Deployer     = nil
 	)
 	for _, arg := range args {
+		// do the switch uglyness to get all interfaces
+
 		switch v := arg.(type) {
 		case Configurable:
-			{
-				println("configurable")
-				println(arg)
-				config = v
-			}
-		/*case int32, int64:
-			fmt.Println(v)
-		case SomeCustomType:
-			fmt.Println(v)*/
-		default:
-			println("unknown")
+			config = v
+		}
+
+		switch v := arg.(type) {
+		case PostFactory:
+			posts = v
+		}
+
+		switch v := arg.(type) {
+		case Renderer:
+			renderer = v
+		}
+
+		switch v := arg.(type) {
+		case Deployer:
+			deployer = v
 		}
 	}
 

@@ -8,27 +8,11 @@ import (
 	"testing"
 )
 
-// if a pointer to a struct is passed, get the type of the dereferenced object
-//
-func toValueType(t reflect.Type) reflect.Type {
-	if t.Kind() == reflect.Ptr {
-		return t.Elem()
-	}
-	return t
-}
-
-func toValue(t reflect.Value) reflect.Value {
-	if t.Kind() == reflect.Ptr {
-		return t.Elem()
-	}
-	return t
-}
-
 // simple structure diff
 //
 func structDiff(a interface{}, b interface{}) (err error) {
-	var typeA reflect.Type = toValueType(reflect.TypeOf(a))
-	var typeB reflect.Type = toValueType(reflect.TypeOf(b))
+	var typeA reflect.Type = toValueType(a)
+	var typeB reflect.Type = toValueType(b)
 
 	if typeA != typeB {
 		return errors.New(fmt.Sprintf("%v has different type than %v", typeA, typeB))
@@ -38,8 +22,8 @@ func structDiff(a interface{}, b interface{}) (err error) {
 		return errors.New(fmt.Sprintf("%v is not reflect.Struct", typeA))
 	}
 
-	structA := toValue(reflect.ValueOf(a))
-	structB := toValue(reflect.ValueOf(b))
+	structA := toValue(a)
+	structB := toValue(b)
 
 	diffs := []string{}
 

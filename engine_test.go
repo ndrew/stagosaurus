@@ -77,6 +77,10 @@ func TestEngine(t *testing.T) {
 	dummy.posts = postsFactory
 
 	blog := New(dummy, dummy, dummy, dummy)
+
+	blog1 := Create(dummy)
+	println(blog1)
+
 	err = blog.Publish()
 	assertNoError(err, t)
 
