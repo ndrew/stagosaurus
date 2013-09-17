@@ -8,43 +8,57 @@ func assertNoError(err error, t *testing.T) {
 	}
 }
 
-// rendering strategy that doesn't render anything
-type DummyRenderingStrategy struct {
-	posts *Post
-	log   string
+// mocked engine
+//
+type FakeEngine struct {
+	log string
+
+	t *testing.T
+	c *Config
+
+	posts PostFactory
 }
 
-func (self *DummyRenderingStrategy) Render(post *Post) error {
+func (self *FakeEngine) Render(post *Post) error {
 	self.log += "<render>"
 	return nil
 }
 
-func (self *DummyRenderingStrategy) RenderStarted() error {
+func (self *FakeEngine) RenderStarted() error {
 	self.log += "<start>"
 	return nil
 }
 
-func (self *DummyRenderingStrategy) RenderEnded() error {
+func (self *FakeEngine) RenderEnded() error {
 	self.log += "<end>"
 	return nil
 }
 
-func (self *DummyRenderingStrategy) GetPosts() []*Post {
+// renderer
+func (self *FakeEngine) GetRenderedPosts() ([]*Post, error) {
 	dummy := new(Post)
 	dummy.Name = "DUMMY"
-	return []*Post{dummy}
+	return []*Post{dummy}, nil
 }
 
-//
-type DummyDeployer struct {
-	t *testing.T
-}
-
-func (self *DummyDeployer) Deploy(posts []*Post) error {
+func (self *FakeEngine) Deploy(posts []*Post) error {
 	if len(posts) != 1 {
 		self.t.Error("incorrect posts passed to deployer")
 	}
 	return nil
+}
+
+func (self *FakeEngine) GetConfig() *Config {
+	return self.c
+}
+
+func (self *FakeEngine) New(data string, name string) (*Post, error) {
+	return self.posts.New(data, name)
+}
+
+// posts
+func (self *FakeEngine) GetPosts() (posts []*Post, err error) {
+	return self.posts.GetPosts()
 }
 
 func TestEngine(t *testing.T) {
@@ -53,17 +67,16 @@ func TestEngine(t *testing.T) {
 	assertNoError(err, t)
 
 	postsFactory := new(FileSystem)
-
 	postsFactory.PostsDir = "test_data/posts"
 	posts, err := postsFactory.GetPosts()
 	assertNoError(err, t)
 
-	renderingStrategy := new(DummyRenderingStrategy)
+	dummy := new(FakeEngine)
+	dummy.c = cfg
+	dummy.t = t
+	dummy.posts = postsFactory
 
-	deployer := new(DummyDeployer)
-	deployer.t = t
-
-	blog := New(cfg, postsFactory, renderingStrategy, deployer)
+	blog := New(dummy, dummy, dummy, dummy)
 	err = blog.Publish()
 	assertNoError(err, t)
 
@@ -73,7 +86,7 @@ func TestEngine(t *testing.T) {
 	}
 	log += "<end>"
 
-	if renderingStrategy.log != log {
-		t.Errorf("renderering was done not as expected '%v' vs '%v' ", log, renderingStrategy.log)
+	if dummy.log != log {
+		t.Errorf("renderering was done not as expected '%v' vs '%v' ", log, dummy.log)
 	}
 }

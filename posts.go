@@ -40,6 +40,7 @@ func (self FileSystem) GetPosts() (posts []*Post, err error) {
 			if err != nil {
 				return
 			}
+			// TODO:
 			post, err := self.New(string(*contents), "Untitled")
 			posts = append(posts, post)
 		}

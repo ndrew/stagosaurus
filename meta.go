@@ -25,6 +25,7 @@ type Meta struct {
 	Type    string
 }
 
+// TODO: from string or from post?
 func (self *Meta) FromString(data string) error {
 	if m := metadataRE.FindStringSubmatch(data); m != nil {
 		header := []byte(m[3])

@@ -6,7 +6,7 @@ package stagosaurus
 // Core of the blog
 //
 type Engine struct {
-	cfg *Config
+	cfg Congigurable
 	// posts []*Post
 
 	posts    PostFactory
@@ -14,9 +14,25 @@ type Engine struct {
 	deployer Deployer
 }
 
-// Constructor
+// generic constructor
 //
-func New(cfg *Config, posts PostFactory, renderer Renderer, deployer Deployer) *Engine {
+func Create(args ...interface{}) *Engine {
+	var (
+		config   Congigurable = nil
+		posts    PostFactory  = nil
+		renderer Renderer     = nil
+		deployer Deployer     = nil
+	)
+	for _, arg := range args {
+		println(arg)
+	}
+
+	return New(config, posts, renderer, deployer)
+}
+
+// Full constructor
+//
+func New(cfg Congigurable, posts PostFactory, renderer Renderer, deployer Deployer) *Engine {
 	return &Engine{
 		cfg:      cfg,
 		renderer: renderer,
@@ -44,12 +60,16 @@ func (self Engine) Publish() (err error) { // TODO: add err handling
 		}
 	}
 
-	e = self.renderer.RenderEnded()
+	if e = self.renderer.RenderEnded(); e != nil {
+		return e
+	}
+
+	posts, e = self.renderer.GetRenderedPosts()
 	if e != nil {
 		return e
 	}
 
-	if e = self.deployer.Deploy(self.renderer.GetPosts()); e != nil {
+	if e = self.deployer.Deploy(posts); e != nil {
 		return e
 	}
 

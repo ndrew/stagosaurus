@@ -6,7 +6,8 @@ import (
 	"io/ioutil"
 )
 
-// Configuration about blog itself
+// Generic configuration.
+// TODO: currently not
 //
 type Config struct {
 	BaseUrl string
@@ -15,6 +16,12 @@ type Config struct {
 	TemplatesDir string
 
 	Port string
+}
+
+// Configurable thingy.
+//
+type Congigurable interface {
+	GetConfig() *Config
 }
 
 func (cfg *Config) ReadConfig(path string) (err error) {
