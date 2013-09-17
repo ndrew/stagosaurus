@@ -20,7 +20,7 @@ type Config struct {
 
 // Configurable thingy.
 //
-type Congigurable interface {
+type Configurable interface {
 	GetConfig() *Config
 }
 
