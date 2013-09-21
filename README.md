@@ -2,4 +2,11 @@ stagosaurus
 ====
 <img src="https://raw.github.com/ndrew/stagosaurus/master/stagosaurus.png"/>
 
-A simple static site engine implemented in go
+Awesome static site generator implemented in go.
+
+Detailed motivation and the main steps of implementation are described in the following series of blog posts:
+
+* [Blog, Pt. 1 — Inception](http://sernyak.com/blog/posts/blog_2_0.htm)
+* [Blog, Pt. 2 — Domain analysis](http://sernyak.com/blog/posts/blog_2_1.htm)
+* [Blog, Pt. 3 — Stagosaurus](http://sernyak.com/blog/posts/blog_2_2.htm)
+* [Blog, Pt. 4 — 0⃣ Setup](http://sernyak.com/blog/posts/blog_2_1.htm)
