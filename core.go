@@ -12,6 +12,35 @@ type Asset interface {
 	GetContents() (*[]byte, error)
 }
 
+// Post - an Asset container with meta-data
+//
+type Post interface {
+	GetMeta() *Config
+	GetAssets() []Asset
+	// duplicate Asset interface,
+	GetName() string
+	GetContents() (*[]byte, error)
+}
+
+// Config retrieving abstraction
+//
+type ConfigSource interface {
+	GetConfig() (*Config, error)
+}
+
+// Posts' retrieving abstraction
+//
+type PostSource interface {
+	GetPosts() ([]Post, error)
+}
+
+type postImpl struct {
+	name   string
+	data   *[]byte
+	meta   *Config
+	assets []Asset
+}
+
 // the simpliest in-memory asset
 //
 type binaryAsset struct {
@@ -60,23 +89,6 @@ func (this *lazyAsset) GetContents() (*[]byte, error) {
 	return this.loadFunc(this.name)
 }
 
-// Post - an Asset container with meta-data
-//
-type Post interface {
-	GetMeta() *Config
-	GetAssets() []Asset
-	// duplicate Asset interface,
-	GetName() string
-	GetContents() (*[]byte, error)
-}
-
-type postImpl struct {
-	name   string
-	data   *[]byte
-	meta   *Config
-	assets []Asset
-}
-
 // in-mem Post Constructor
 //
 func NewPost(name string, data interface{}, meta *Config, assets []Asset) (Post, error) {
@@ -118,10 +130,4 @@ func (this *postImpl) GetMeta() *Config {
 
 func (this *postImpl) GetAssets() []Asset {
 	return this.assets
-}
-
-// Posts' retrieving abstraction
-//
-type PostSource interface {
-	GetPosts() ([]Post, error)
 }
