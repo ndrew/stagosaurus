@@ -4,26 +4,44 @@ import (
 	"errors"
 )
 
-// Constructor for Config. If defaults are not needed just do new(Config)
-//
-func NewConfig(defaults *Config) *Config {
-	cfg := new(Config)
-	cfg.Defaults = defaults
-	return cfg
+type Config interface {
+	Get(key ...interface{}) interface{}
+	Set(key interface{}, value interface{}) interface{}
+	Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{}
+
+	// convenience funcs
+	String(key ...interface{}) (string, error)
+}
+
+type Validator interface {
+	Validate(params ...interface{}) (bool, error)
 }
 
 // Generic configuration class
 //
-type Config struct {
-	Defaults *Config
+//type Config struct {
+//    Defaults *Config
+//    cfg      map[interface{}]interface{}
+//}
+
+type MapConfig struct {
+	Defaults Config
 	cfg      map[interface{}]interface{}
+}
+
+// Constructor for Config. If defaults are not needed just do new(Config)
+//
+func NewConfig(defaults Config) Config {
+	cfg := new(MapConfig)
+	cfg.Defaults = defaults
+	return cfg
 }
 
 // Get value by key from configuration dictionary
 //
 // Note: as go doesn't support polymorphic funcs, I do trick with variable arguments to have
 // fluent interface for providing optional overriding default value
-func (this *Config) Get(key ...interface{}) interface{} {
+func (this *MapConfig) Get(key ...interface{}) interface{} {
 	if this.cfg == nil {
 		this.cfg = make(map[interface{}]interface{})
 	}
@@ -48,7 +66,7 @@ func (this *Config) Get(key ...interface{}) interface{} {
 
 // Sets value for key in configuration dictionary
 //
-func (this *Config) Set(key interface{}, value interface{}) interface{} {
+func (this *MapConfig) Set(key interface{}, value interface{}) interface{} {
 	if this.cfg == nil {
 		this.cfg = make(map[interface{}]interface{})
 	}
@@ -59,7 +77,7 @@ func (this *Config) Set(key interface{}, value interface{}) interface{} {
 
 // Configuration validation via key => validity-predicate map. Returns result of validation and list of failed keys, if any
 //
-func (this *Config) Validate(predicateMap map[interface{}]func(interface{}) bool) (bool, []interface{}) {
+func (this *MapConfig) Validate(predicateMap map[interface{}]func(interface{}) bool) (bool, []interface{}) {
 	res := true
 	noErrors := [0]interface{}{}
 	errors := noErrors[:]
@@ -74,11 +92,33 @@ func (this *Config) Validate(predicateMap map[interface{}]func(interface{}) bool
 	return res, errors
 }
 
+func (this *MapConfig) FindByKey(predicate func(interface{}) bool) map[interface{}]interface{} {
+	return this.Find(func(k interface{}, v interface{}) bool {
+		return predicate(k)
+	})
+}
+
+func (this *MapConfig) FindByValue(predicate func(interface{}) bool) map[interface{}]interface{} {
+	return this.Find(func(k interface{}, v interface{}) bool {
+		return predicate(v)
+	})
+}
+
+func (this *MapConfig) Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{} {
+	res := make(map[interface{}]interface{})
+	for k, v := range this.cfg {
+		if predicate(k, v) {
+			res[k] = v
+		}
+	}
+	return res
+}
+
 // convenience getters
 
 // string
 //
-func (this *Config) String(key ...interface{}) (string, error) {
+func (this *MapConfig) String(key ...interface{}) (string, error) {
 	v := this.Get(key...)
 	if nil != v {
 		if ret, ok := v.(string); ok {
@@ -91,7 +131,7 @@ func (this *Config) String(key ...interface{}) (string, error) {
 
 //   func (v Value) Bytes() []byte
 
-func (this *Config) Bool(key ...interface{}) (bool, error) {
+func (this *MapConfig) Bool(key ...interface{}) (bool, error) {
 	v := this.Get(key...)
 	if nil != v {
 		if ret, ok := v.(bool); ok {

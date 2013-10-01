@@ -15,7 +15,7 @@ type Asset interface {
 // Post - an Asset container with meta-data
 //
 type Post interface {
-	GetMeta() *Config
+	GetMeta() Config
 	GetAssets() []Asset
 	// duplicate Asset interface,
 	GetName() string
@@ -25,7 +25,7 @@ type Post interface {
 // Config retrieving abstraction
 //
 type ConfigSource interface {
-	GetConfig() (*Config, error)
+	GetConfig() (Config, error)
 }
 
 // Posts' retrieving abstraction
@@ -37,7 +37,7 @@ type PostSource interface {
 type postImpl struct {
 	name   string
 	data   *[]byte
-	meta   *Config
+	meta   Config
 	assets []Asset
 }
 
@@ -91,7 +91,7 @@ func (this *lazyAsset) GetContents() (*[]byte, error) {
 
 // in-mem Post Constructor
 //
-func NewPost(name string, data interface{}, meta *Config, assets []Asset) (Post, error) {
+func NewPost(name string, data interface{}, meta Config, assets []Asset) (Post, error) {
 	post := new(postImpl)
 	post.name = name
 
@@ -124,7 +124,7 @@ func (this *postImpl) GetContents() (*[]byte, error) {
 	return this.data, nil
 }
 
-func (this *postImpl) GetMeta() *Config {
+func (this *postImpl) GetMeta() Config {
 	return this.meta
 }
 

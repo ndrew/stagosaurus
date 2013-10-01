@@ -21,28 +21,31 @@ func New() (*Blog, error) { // blog constructor
 // your future blog generator
 //
 type Blog struct {
-	Config *site.Config
+	Config site.Config
 	Assets map[string]site.Asset
 }
 
 // ConfigSource
 //
-func (this *Blog) GetConfig() (*site.Config, error) {
+func (this *Blog) GetConfig() (site.Config, error) {
 	// provide defaults for configuration
-	defaults := new(site.Config)
+	defaults := new(site.MapConfig)
 	defaults.Set("greeting", "Rhoaarrrr")
 
 	config := site.NewConfig(defaults)
 	config.Set("blogName", "Stagosaurus")
 
-	// validate the config key 'greeting'
-	validator := map[interface{}](func(interface{}) bool){
-		"greeting": func(v interface{}) bool {
-			return v != nil && v != "Hello"
-		},
-	}
-	if original, _ := config.Validate(validator); !original {
-		return config, errors.New("You've provided too trivial value! Try again, be original!")
+	if v, ok := config.(site.Validator); ok {
+		// validate the config key 'greeting'
+		validator := map[interface{}](func(interface{}) bool){
+			"greeting": func(v interface{}) bool {
+				return v != nil && v != "Hello"
+			},
+		}
+
+		if original, _ := v.Validate(validator); !original {
+			return config, errors.New("You've provided too trivial value! Try again, be original!")
+		}
 	}
 
 	return config, nil
@@ -69,7 +72,7 @@ func (this *Blog) GetPosts() ([]site.Post, error) {
 		content := buzzwords[ri] + " post, bro!"
 
 		ri = rand.Intn(len(buzzwords))
-		p, err := site.NewPost(buzzwords[ri]+" Post", content, new(site.Config), []site.Asset{})
+		p, err := site.NewPost(buzzwords[ri]+" Post", content, new(site.MapConfig), []site.Asset{})
 		if err != nil {
 			return []site.Post{}, err
 		}
@@ -127,6 +130,7 @@ func (this *Blog) renderIndex(post site.Post) (site.Post, error) {
 			return nil, errors.New("hello is not a string!")
 		}
 	}
+
 	// or use shorthand for common types: string/bool/int
 	world, err := post.GetMeta().String("blogName")
 	if err != nil {
@@ -152,7 +156,7 @@ func (this *Blog) renderIndex(post site.Post) (site.Post, error) {
 	content := strings.Replace(string(*indexContent), "{HEADER}", BlogHeader+"\n"+header, 1)
 	content = strings.Replace(content, "{POSTS}", postsListing, 1)
 
-	return site.NewPost("index.html", content, new(site.Config), []site.Asset{})
+	return site.NewPost("index.html", content, new(site.MapConfig), []site.Asset{})
 }
 
 // renders post
@@ -164,22 +168,22 @@ func (this *Blog) renderPost(post site.Post) (site.Post, error) {
 	}
 
 	content := strings.Replace(string(*data), "{HEADER}", BlogHeader, 1)
-	return site.NewPost(strings.Replace(post.GetName(), " ", "_", 10)+".htm", content, new(site.Config), []site.Asset{})
+	return site.NewPost(strings.Replace(post.GetName(), " ", "_", 10)+".htm", content, new(site.MapConfig), []site.Asset{})
 }
 
-func (this *Blog) Deploy(posts []site.Post) error {
+func (this *Blog) Deploy(posts []site.Post) ([]site.Post, error) {
 	// here usually posts are being saved to filesystems, but for simplicity we will 'deploy' posts to screen
 	for _, post := range posts {
 		println(post.GetName())
 		contents, err := post.GetContents()
 		if err != nil {
-			return err
+			return []site.Post{}, err
 		}
 		println(string(*contents))
 		println(strings.Repeat("=", 80))
 	}
 
-	return nil
+	return []site.Post{}, nil
 }
 
 //
@@ -205,23 +209,21 @@ func main() {
 		"  `-+/----.--..-// ::--`/:...``     \n" +
 		"          ``           `            \n"
 
-	// create a generator
-	blog, err := New()
-	if err != nil {
-		println("Can't instantiate a blog: " + err.Error())
-		return
-	}
-	// retrieve posts
-	posts, err := blog.GetPosts()
-	if err != nil {
-		println("Error while retrieving posts: " + err.Error())
-		return
-	}
-	// render them
+		// most compact way to handle errors yet
+	err := func() error {
+		if blog, err := New(); err != nil {
+			return err
+		} else if posts, err := blog.GetPosts(); err != nil {
+			return err
+		} else if renderedPosts, err := blog.Render(posts); err != nil {
+			return err
+		} else if _, err = blog.Deploy(renderedPosts); err != nil {
+			return err
+		}
+		return nil
+	}()
 
-	if renderedPosts, err := blog.Render(posts); err != nil {
-		println("Error while rendering: " + err.Error())
-	} else {
-		blog.Deploy(renderedPosts)
+	if err != nil {
+		println("Error while generation ", err.Error())
 	}
 }
