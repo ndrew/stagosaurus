@@ -46,17 +46,16 @@ func NewFileSystem(config Config) (*FileSystem, error) {
 	    }
 	}*/
 
-	fs := new(FileSystem)
-
 	validator := map[interface{}](func(interface{}) bool){
 		"FS.HOME_DIR": func(v interface{}) bool {
 			return v != nil // && v != "Hello"
 		},
 	}
-	if ok, err := fs.Validate(validator); !ok {
-		return fs, err
+	if ok, err := config.Validate(validator); !ok {
+		return nil, err
 	}
 
+	fs := new(FileSystem)
 	return fs, nil
 }
 

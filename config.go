@@ -79,7 +79,7 @@ func (this *AConfig) Set(key interface{}, value interface{}) interface{} {
 	return this.Get(key)
 }
 
-// TBD.
+// TBD — do generic validation
 // Configuration validation via key => validity-predicate map.
 //  Returns result of validation and list of failed keys, if any
 //
