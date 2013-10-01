@@ -1,6 +1,7 @@
 package stagosaurus
 
 import (
+	"errors"
 	"reflect"
 )
 
@@ -23,3 +24,23 @@ func toValue(i interface{}) reflect.Value {
 	}
 	return t
 }
+
+func ToString(v interface{}) (string, error) {
+	if nil != v {
+		if ret, ok := v.(string); ok {
+			return ret, nil
+		}
+	}
+	iv := "" // identity value
+	return iv, errors.New("Value in config is not String")
+}
+
+/*func ToAsset(v interface{}) (string, error) {
+    if nil != v {
+        if ret, ok := v.(string); ok {
+            return ret, nil
+        }
+    }
+    iv := "" // identity value
+    return iv, errors.New("Value in config is not String")
+}*/

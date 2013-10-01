@@ -10,7 +10,7 @@ type Config interface {
 	Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{}
 
 	// convenience funcs
-	String(key ...interface{}) (string, error)
+	//	String(key ...interface{}) (string, error)
 }
 
 type Validator interface {

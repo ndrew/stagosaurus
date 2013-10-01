@@ -15,7 +15,7 @@ type Asset interface {
 // Post - an Asset container with meta-data
 //
 type Post interface {
-	GetMeta() Config
+	GetConfig() Config
 	GetAssets() []Asset
 	// duplicate Asset interface,
 	GetName() string
@@ -31,7 +31,7 @@ type ConfigSource interface {
 // Posts' retrieving abstraction
 //
 type PostSource interface {
-	GetPosts() ([]Post, error)
+	GetPosts(Config) ([]Post, error)
 }
 
 type postImpl struct {
@@ -124,7 +124,7 @@ func (this *postImpl) GetContents() (*[]byte, error) {
 	return this.data, nil
 }
 
-func (this *postImpl) GetMeta() Config {
+func (this *postImpl) GetConfig() Config {
 	return this.meta
 }
 

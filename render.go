@@ -1,5 +1,5 @@
 package stagosaurus
 
 type Renderer interface {
-	Render([]Post) ([]Post, error)
+	Render(Config, []Post) ([]Post, error)
 }

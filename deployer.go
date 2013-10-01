@@ -1,5 +1,5 @@
 package stagosaurus
 
 type Deployer interface {
-	Deploy([]Post) ([]Post, error)
+	Deploy(Config, []Post) ([]Post, error)
 }

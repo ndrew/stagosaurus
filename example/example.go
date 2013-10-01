@@ -53,12 +53,7 @@ func (this *Blog) GetConfig() (site.Config, error) {
 
 // PostsSource
 //
-func (this *Blog) GetPosts() ([]site.Post, error) {
-	meta, err := this.GetConfig()
-	if err != nil {
-		return []site.Post{}, err
-	}
-
+func (this *Blog) GetPosts(meta site.Config) ([]site.Post, error) {
 	assets := []site.Asset{}
 	posts := []site.Post{}
 
@@ -94,7 +89,7 @@ func (this *Blog) GetPosts() ([]site.Post, error) {
 
 // rendering text in a fancy border
 //
-func (this *Blog) Render(posts []site.Post) ([]site.Post, error) {
+func (this *Blog) Render(cfg site.Config, posts []site.Post) ([]site.Post, error) {
 	var results = []site.Post{}
 
 	var p site.Post = nil
@@ -123,7 +118,7 @@ func (this *Blog) renderIndex(post site.Post) (site.Post, error) {
 	world := ""
 
 	// cast to type manually
-	helloProperty := post.GetMeta().Get("greeting")
+	helloProperty := post.GetConfig().Get("greeting")
 	if helloProperty != nil {
 		var ok bool = true
 		if hello, ok = helloProperty.(string); !ok {
@@ -132,7 +127,7 @@ func (this *Blog) renderIndex(post site.Post) (site.Post, error) {
 	}
 
 	// or use shorthand for common types: string/bool/int
-	world, err := post.GetMeta().String("blogName")
+	world, err := site.ToString(post.GetConfig().Get("blogName"))
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +166,7 @@ func (this *Blog) renderPost(post site.Post) (site.Post, error) {
 	return site.NewPost(strings.Replace(post.GetName(), " ", "_", 10)+".htm", content, new(site.MapConfig), []site.Asset{})
 }
 
-func (this *Blog) Deploy(posts []site.Post) ([]site.Post, error) {
+func (this *Blog) Deploy(config site.Config, posts []site.Post) ([]site.Post, error) {
 	// here usually posts are being saved to filesystems, but for simplicity we will 'deploy' posts to screen
 	for _, post := range posts {
 		println(post.GetName())
@@ -211,13 +206,17 @@ func main() {
 
 		// most compact way to handle errors yet
 	err := func() error {
-		if blog, err := New(); err != nil {
+		blog, err := New()
+		if err != nil {
 			return err
-		} else if posts, err := blog.GetPosts(); err != nil {
+		}
+		if config, err := blog.GetConfig(); err != nil {
 			return err
-		} else if renderedPosts, err := blog.Render(posts); err != nil {
+		} else if posts, err := blog.GetPosts(config); err != nil {
 			return err
-		} else if _, err = blog.Deploy(renderedPosts); err != nil {
+		} else if renderedPosts, err := blog.Render(config, posts); err != nil {
+			return err
+		} else if _, err = blog.Deploy(config, renderedPosts); err != nil {
 			return err
 		}
 		return nil
