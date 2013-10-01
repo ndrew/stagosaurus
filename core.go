@@ -34,6 +34,9 @@ type PostSource interface {
 	GetPosts(Config) ([]Post, error)
 }
 
+/////////
+// impl
+
 type postImpl struct {
 	name   string
 	data   *[]byte

@@ -29,23 +29,21 @@ type Blog struct {
 //
 func (this *Blog) GetConfig() (site.Config, error) {
 	// provide defaults for configuration
-	defaults := new(site.MapConfig)
+	defaults := site.EmptyConfig()
 	defaults.Set("greeting", "Rhoaarrrr")
 
 	config := site.NewConfig(defaults)
 	config.Set("blogName", "Stagosaurus")
 
-	if v, ok := config.(site.Validator); ok {
-		// validate the config key 'greeting'
-		validator := map[interface{}](func(interface{}) bool){
-			"greeting": func(v interface{}) bool {
-				return v != nil && v != "Hello"
-			},
-		}
+	// validate the config key 'greeting'
+	validator := map[interface{}](func(interface{}) bool){
+		"greeting": func(v interface{}) bool {
+			return v != nil && v != "Hello"
+		},
+	}
 
-		if original, _ := v.Validate(validator); !original {
-			return config, errors.New("You've provided too trivial value! Try again, be original!")
-		}
+	if original, _ := config.Validate(validator); !original {
+		return config, errors.New("You've provided too trivial value! Try again, be original!")
 	}
 
 	return config, nil
@@ -67,7 +65,7 @@ func (this *Blog) GetPosts(meta site.Config) ([]site.Post, error) {
 		content := buzzwords[ri] + " post, bro!"
 
 		ri = rand.Intn(len(buzzwords))
-		p, err := site.NewPost(buzzwords[ri]+" Post", content, new(site.MapConfig), []site.Asset{})
+		p, err := site.NewPost(buzzwords[ri]+" Post", content, site.EmptyConfig(), []site.Asset{})
 		if err != nil {
 			return []site.Post{}, err
 		}
@@ -151,7 +149,7 @@ func (this *Blog) renderIndex(post site.Post) (site.Post, error) {
 	content := strings.Replace(string(*indexContent), "{HEADER}", BlogHeader+"\n"+header, 1)
 	content = strings.Replace(content, "{POSTS}", postsListing, 1)
 
-	return site.NewPost("index.html", content, new(site.MapConfig), []site.Asset{})
+	return site.NewPost("index.html", content, site.EmptyConfig(), []site.Asset{})
 }
 
 // renders post
@@ -163,7 +161,7 @@ func (this *Blog) renderPost(post site.Post) (site.Post, error) {
 	}
 
 	content := strings.Replace(string(*data), "{HEADER}", BlogHeader, 1)
-	return site.NewPost(strings.Replace(post.GetName(), " ", "_", 10)+".htm", content, new(site.MapConfig), []site.Asset{})
+	return site.NewPost(strings.Replace(post.GetName(), " ", "_", 10)+".htm", content, site.EmptyConfig(), []site.Asset{})
 }
 
 func (this *Blog) Deploy(config site.Config, posts []site.Post) ([]site.Post, error) {

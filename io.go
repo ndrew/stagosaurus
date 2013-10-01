@@ -2,14 +2,6 @@ package stagosaurus
 
 // 'Filestem' abstraction for retrieving/stroring Assets
 //
-/*type Storage interface {
-	GetAsset(string) (Asset, error)
-	StoreAsset(Asset) error
-	//    Find(func(string, ))
-	//func (this *Config) Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{} {
-
-}*/
-
 type FileSystem struct {
 }
 
@@ -29,6 +21,43 @@ func (this *FileSystem) Find(predicate func(interface{}, interface{}) bool) map[
 	    }
 	}*/
 	return res
+}
+
+func (this *FileSystem) Validate(params ...interface{}) (bool, error) {
+	return true, nil
+}
+
+//////////
+// impl
+
+// FileSytem constructor.
+//
+func NewFileSystem(config Config) (*FileSystem, error) {
+	/*if v, ok := config.(site.Validator); ok {
+	    // validate the config key 'greeting'
+	    validator := map[interface{}](func(interface{}) bool){
+	        "greeting": func(v interface{}) bool {
+	            return v != nil && v != "Hello"
+	        },
+	    }
+
+	    if original, _ := v.Validate(validator); !original {
+	        return config, errors.New("You've provided too trivial value! Try again, be original!")
+	    }
+	}*/
+
+	fs := new(FileSystem)
+
+	validator := map[interface{}](func(interface{}) bool){
+		"FS.HOME_DIR": func(v interface{}) bool {
+			return v != nil // && v != "Hello"
+		},
+	}
+	if ok, err := fs.Validate(validator); !ok {
+		return fs, err
+	}
+
+	return fs, nil
 }
 
 /*

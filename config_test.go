@@ -16,7 +16,7 @@ func assertNoError(err error, t *testing.T) {
 
 // testing contracts from Config class
 //
-func testConfig(c *Config, t *testing.T) {
+func testConfig(c Config, t *testing.T) {
 	// Get() with no params should return config itself
 	if c != c.Get() {
 		t.Error("Get doesn't return all config itself")
@@ -43,11 +43,11 @@ func testConfig(c *Config, t *testing.T) {
 	}
 
 	// test String func
-	if s, err := c.String("property"); s != "value" {
+	if s, err := ToString(c.Get("property")); s != "value" {
 		t.Error(err)
 	}
 
-	if s, err := c.String("non-existing-property"); s != "" || err == nil {
+	if s, err := ToString(c.Get("non-existing-property")); s != "" || err == nil {
 		t.Error(WTF)
 	}
 
@@ -56,11 +56,11 @@ func testConfig(c *Config, t *testing.T) {
 		t.Error(WTF)
 	}
 
-	if b, err := c.Bool("bool"); b != true {
+	if b, err := ToBool(c.Get("bool")); b != true {
 		t.Error(err)
 	}
 
-	if b, err := c.Bool("non-exisitng-bool"); b != false || err == nil {
+	if b, err := ToBool(c.Get("non-exisitng-bool")); b != false || err == nil {
 		t.Error(WTF)
 	}
 
@@ -78,14 +78,14 @@ func testConfig(c *Config, t *testing.T) {
 // test case config without any defaults
 //
 func TestConfig_Sys_Constructor(t *testing.T) {
-	c := new(Config)
+	c := EmptyConfig()
 	testConfig(c, t)
 }
 
 // test case for config with defaults
 //
 func TestConfig_Conveniece_Constructor(t *testing.T) {
-	defaults := new(Config)
+	defaults := EmptyConfig()
 	defaults.Set("default1", "1")
 	defaults.Set("default2", "2")
 

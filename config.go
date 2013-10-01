@@ -4,35 +4,39 @@ import (
 	"errors"
 )
 
+// Generic Config interface
+//
 type Config interface {
 	Get(key ...interface{}) interface{}
 	Set(key interface{}, value interface{}) interface{}
 	Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{}
-
-	// convenience funcs
-	//	String(key ...interface{}) (string, error)
+	Validate(params ...interface{}) (bool, error)
 }
 
+// Generic validator
+//
 type Validator interface {
 	Validate(params ...interface{}) (bool, error)
 }
 
-// Generic configuration class
+// KeyValue config implementation
 //
-//type Config struct {
-//    Defaults *Config
-//    cfg      map[interface{}]interface{}
-//}
-
-type MapConfig struct {
+type AConfig struct {
 	Defaults Config
 	cfg      map[interface{}]interface{}
+}
+
+// Constructor for empty Config
+//
+func EmptyConfig() Config {
+	cfg := new(AConfig)
+	return cfg
 }
 
 // Constructor for Config. If defaults are not needed just do new(Config)
 //
 func NewConfig(defaults Config) Config {
-	cfg := new(MapConfig)
+	cfg := new(AConfig)
 	cfg.Defaults = defaults
 	return cfg
 }
@@ -41,7 +45,7 @@ func NewConfig(defaults Config) Config {
 //
 // Note: as go doesn't support polymorphic funcs, I do trick with variable arguments to have
 // fluent interface for providing optional overriding default value
-func (this *MapConfig) Get(key ...interface{}) interface{} {
+func (this *AConfig) Get(key ...interface{}) interface{} {
 	if this.cfg == nil {
 		this.cfg = make(map[interface{}]interface{})
 	}
@@ -66,7 +70,7 @@ func (this *MapConfig) Get(key ...interface{}) interface{} {
 
 // Sets value for key in configuration dictionary
 //
-func (this *MapConfig) Set(key interface{}, value interface{}) interface{} {
+func (this *AConfig) Set(key interface{}, value interface{}) interface{} {
 	if this.cfg == nil {
 		this.cfg = make(map[interface{}]interface{})
 	}
@@ -75,36 +79,36 @@ func (this *MapConfig) Set(key interface{}, value interface{}) interface{} {
 	return this.Get(key)
 }
 
-// Configuration validation via key => validity-predicate map. Returns result of validation and list of failed keys, if any
+// TBD.
+// Configuration validation via key => validity-predicate map.
+//  Returns result of validation and list of failed keys, if any
 //
-func (this *MapConfig) Validate(predicateMap map[interface{}]func(interface{}) bool) (bool, []interface{}) {
-	res := true
-	noErrors := [0]interface{}{}
-	errors := noErrors[:]
+func (this *AConfig) Validate(params ...interface{}) (bool, error) {
+	if 1 == len(params) {
+		if predicateMap, ok := params[0].(map[interface{}]func(interface{}) bool); ok {
+			res := true
+			noErrors := [0]interface{}{}
+			errs := noErrors[:]
 
-	for k, predicate := range predicateMap {
-		if valid := predicate(this.Get(k)); false == valid {
-			res = false
-			errors = append(errors, k)
+			for k, predicate := range predicateMap {
+				if valid := predicate(this.Get(k)); false == valid {
+					res = false
+					errs = append(errs, k)
+				}
+			}
+			if len(errs) > 0 {
+				// TBD: more details
+				return res, errors.New("Validation failed")
+			}
+			return res, nil
 		}
 	}
-
-	return res, errors
+	return false, errors.New("Unknown stuff to validate")
 }
 
-func (this *MapConfig) FindByKey(predicate func(interface{}) bool) map[interface{}]interface{} {
-	return this.Find(func(k interface{}, v interface{}) bool {
-		return predicate(k)
-	})
-}
-
-func (this *MapConfig) FindByValue(predicate func(interface{}) bool) map[interface{}]interface{} {
-	return this.Find(func(k interface{}, v interface{}) bool {
-		return predicate(v)
-	})
-}
-
-func (this *MapConfig) Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{} {
+// Search function
+//
+func (this *AConfig) Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{} {
 	res := make(map[interface{}]interface{})
 	for k, v := range this.cfg {
 		if predicate(k, v) {
@@ -114,30 +118,32 @@ func (this *MapConfig) Find(predicate func(interface{}, interface{}) bool) map[i
 	return res
 }
 
-// convenience getters
+// convenience search
+//
+
+func (this *AConfig) FindByKey(predicate func(interface{}) bool) map[interface{}]interface{} {
+	return this.Find(func(k interface{}, v interface{}) bool {
+		return predicate(k)
+	})
+}
+
+func (this *AConfig) FindByValue(predicate func(interface{}) bool) map[interface{}]interface{} {
+	return this.Find(func(k interface{}, v interface{}) bool {
+		return predicate(v)
+	})
+}
+
+//////////////
+// convenience getters, but hence these will be mostly invisible - use convertation functions like ToString/ToBool/etc.
 
 // string
 //
-func (this *MapConfig) String(key ...interface{}) (string, error) {
-	v := this.Get(key...)
-	if nil != v {
-		if ret, ok := v.(string); ok {
-			return ret, nil
-		}
-	}
-	iv := "" // identity value
-	return iv, errors.New("Value in config is not String")
+func (this *AConfig) String(key ...interface{}) (string, error) {
+	return ToString(this.Get(key...))
 }
 
-//   func (v Value) Bytes() []byte
-
-func (this *MapConfig) Bool(key ...interface{}) (bool, error) {
-	v := this.Get(key...)
-	if nil != v {
-		if ret, ok := v.(bool); ok {
-			return ret, nil
-		}
-	}
-	iv := false // identity value
-	return iv, errors.New("Value in config is not Bool")
+// bool
+//
+func (this *AConfig) Bool(key ...interface{}) (bool, error) {
+	return ToBool(this.Get(key...))
 }
