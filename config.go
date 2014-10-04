@@ -13,6 +13,19 @@ type Config interface {
 	Validate(params ...interface{}) (bool, error)
 }
 
+//
+//
+type ExtendedConfig interface {
+	Get(key ...interface{}) interface{}
+	Set(key interface{}, value interface{}) interface{}
+	Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{}
+	Validate(params ...interface{}) (bool, error)
+
+	Bool(key ...interface{}) (bool, error)
+	String(key ...interface{}) (string, error)
+	SubConfig(key ...interface{}) (Config, error)
+}
+
 // Generic validator
 //
 type Validator interface {
@@ -146,4 +159,12 @@ func (this *AConfig) String(key ...interface{}) (string, error) {
 //
 func (this *AConfig) Bool(key ...interface{}) (bool, error) {
 	return ToBool(this.Get(key...))
+}
+
+// subconfig
+//
+func (this *AConfig) SubConfig(key ...interface{}) (Config, error) {
+	cfg := new(AConfig)
+	cfg.cfg = this.Get(key...).(map[interface{}]interface{})
+	return cfg, nil
 }

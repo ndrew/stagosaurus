@@ -106,3 +106,23 @@ func TestConfig_Conveniece_Constructor(t *testing.T) {
 		t.Error(WTF)
 	}
 }
+
+func testConfig_ExtendedConfig(t *testing.T) {
+	defaults := EmptyConfig()
+
+	c := NewConfig(defaults)
+	testConfig(c, t)
+
+	data := make(map[string]string)
+	data["foo"] = "bar"
+	c.Set("sub", data)
+
+	ec, _ := c.(ExtendedConfig)
+	testConfig(ec, t)
+
+	if v, _ := ec.String("foo"); v != "bar" {
+		t.Error(WTF)
+	}
+	//println(ec)
+
+}
