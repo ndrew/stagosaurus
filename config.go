@@ -1,7 +1,11 @@
 package stagosaurus
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"path/filepath"
 )
 
 // Generic Config interface
@@ -193,4 +197,47 @@ func ConfigFromMap(m map[interface{}]interface{}) ExtendedConfig {
 	config := new(AConfig)
 	config.cfg = m
 	return config
+}
+
+//
+//
+//
+//
+func ReadJSONConfig(path string, defaults Config) (Config, error) {
+	cfg := NewConfig(defaults)
+
+	var realpath, err = filepath.Abs(path)
+	if err != nil {
+		return cfg, err
+	}
+
+	source, err := ioutil.ReadFile(realpath)
+	if err != nil {
+		return cfg, errors.New(fmt.Sprintf("ERR: Config file '%v' is not found.\n", realpath))
+	}
+
+	//
+	// JSON stuff
+	//
+	// TODO: move config reading to stago lib
+	var data map[string]*json.RawMessage
+	err = json.Unmarshal(source, &data)
+
+	if err != nil || len(data) == 0 {
+		return cfg, errors.New(fmt.Sprintf("ERR: can't parse JSON from '%v'\n", realpath))
+	}
+
+	for k, v := range data {
+		var value interface{}
+		err = json.Unmarshal(*v, &value)
+
+		if err == nil {
+			cfg.Set(k, value)
+		} else {
+			// does this really occurs?
+			return cfg, errors.New(fmt.Sprintf("ERR: couldn't interpret json, '%v':%v \n", k, *v))
+		}
+	}
+
+	return cfg, nil
 }
