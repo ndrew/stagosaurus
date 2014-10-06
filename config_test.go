@@ -107,21 +107,22 @@ func TestConfig_Conveniece_Constructor(t *testing.T) {
 	}
 }
 
-func testConfig_ExtendedConfig(t *testing.T) {
+//
+//
+func TestConfig_ExtendedConfig(t *testing.T) {
 	defaults := EmptyConfig()
 
-	c := NewConfig(defaults)
-	testConfig(c, t)
+	ec := HumanConfig(defaults)
+	// test type convertioon
+	testConfig(ec, t)
 
 	data := make(map[string]string)
 	data["foo"] = "bar"
-	c.Set("sub", data)
+	ec.Set("sub", data)
 
-	ec, _ := c.(ExtendedConfig)
-	testConfig(ec, t)
-
-	if v, _ := ec.String("foo"); v != "bar" {
-		t.Error(WTF)
+	subcfg, _ := ec.SubConfig("sub")
+	if v, _ := subcfg.String("foo"); v != "bar" {
+		t.Error("subconfig failed")
 	}
 	//println(ec)
 

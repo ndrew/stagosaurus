@@ -44,6 +44,22 @@ func ToAsset(v interface{}) (Asset, error) {
 	return nil, errors.New("Value is not Asset")
 }
 
+// interface{} -> map[interface{}]interface{}
+//
+func ToMap(v interface{}) (map[interface{}]interface{}, error) {
+	if nil != v {
+		ret := make(map[interface{}]interface{})
+		tv := toValue(v)
+		for _, k := range tv.MapKeys() {
+			val := tv.MapIndex(k)
+			ret[k.Interface()] = val.Interface()
+		}
+
+		return ret, nil
+	}
+	return nil, errors.New("Value is not a map")
+}
+
 /////////////////////
 // reflection stuff
 
@@ -65,4 +81,14 @@ func toValue(i interface{}) reflect.Value {
 		return t.Elem()
 	}
 	return t
+}
+
+//
+//
+func AsConfig(config interface{}) ExtendedConfig {
+	t := reflect.ValueOf(config)
+	i := t.Interface()
+
+	r, _ := i.(ExtendedConfig)
+	return r
 }

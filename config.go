@@ -23,7 +23,7 @@ type ExtendedConfig interface {
 
 	Bool(key ...interface{}) (bool, error)
 	String(key ...interface{}) (string, error)
-	SubConfig(key ...interface{}) (Config, error)
+	SubConfig(key interface{}) (ExtendedConfig, error)
 }
 
 // Generic validator
@@ -37,21 +37,6 @@ type Validator interface {
 type AConfig struct {
 	Defaults Config
 	cfg      map[interface{}]interface{}
-}
-
-// Constructor for empty Config
-//
-func EmptyConfig() Config {
-	cfg := new(AConfig)
-	return cfg
-}
-
-// Constructor for Config. If defaults are not needed just do new(Config)
-//
-func NewConfig(defaults Config) Config {
-	cfg := new(AConfig)
-	cfg.Defaults = defaults
-	return cfg
 }
 
 // Get value by key from configuration dictionary
@@ -146,6 +131,20 @@ func (this *AConfig) FindByValue(predicate func(interface{}) bool) map[interface
 	})
 }
 
+// subconfig
+//
+func (this *AConfig) SubConfig(key interface{}) (ExtendedConfig, error) {
+	cfg := new(AConfig)
+
+	v, err := ToMap(this.Get(key))
+	if err != nil {
+		return cfg, errors.New("couldn't get a subconfig")
+	}
+
+	cfg.cfg = v
+	return cfg, nil
+}
+
 //////////////
 // convenience getters, but hence these will be mostly invisible - use convertation functions like ToString/ToBool/etc.
 
@@ -161,10 +160,23 @@ func (this *AConfig) Bool(key ...interface{}) (bool, error) {
 	return ToBool(this.Get(key...))
 }
 
-// subconfig
+// Constructor for empty Config
 //
-func (this *AConfig) SubConfig(key ...interface{}) (Config, error) {
+func EmptyConfig() Config {
 	cfg := new(AConfig)
-	cfg.cfg = this.Get(key...).(map[interface{}]interface{})
-	return cfg, nil
+	return cfg
+}
+
+// Constructor for Config. If defaults are not needed just do new(Config)
+//
+func NewConfig(defaults Config) Config {
+	cfg := new(AConfig)
+	cfg.Defaults = defaults
+	return cfg
+}
+
+func HumanConfig(config Config) ExtendedConfig {
+	cfg := new(AConfig)
+	cfg.Defaults = config
+	return cfg
 }
