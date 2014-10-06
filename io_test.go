@@ -6,7 +6,7 @@ import (
 
 func TestFileSystemImpl(t *testing.T) {
 	config := EmptyConfig()
-	config.Set("FS.HOME_DIR", "FOO")
+	config.Set("source-dir", ".")
 
 	fs, err := NewFileSystem(config)
 	if err != nil {
@@ -16,5 +16,23 @@ func TestFileSystemImpl(t *testing.T) {
 	var configTest Config = fs
 	if nil == configTest {
 		t.Error(WTF)
+	}
+
+	res := fs.Find(func(k interface{}, v interface{}) bool {
+
+		return v.(*File).Name() == "io_test.go"
+	})
+
+	cfg := ConfigFromMap(res)
+	f := cfg.Get("io_test.go")
+	if f == nil {
+		t.Error("filtering by filename had been broken")
+	}
+
+	file := f.(*File)
+	content := string(*file.Contents("."))
+
+	if content != "" {
+		t.Error("file hasn't been read")
 	}
 }

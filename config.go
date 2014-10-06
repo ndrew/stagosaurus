@@ -13,17 +13,21 @@ type Config interface {
 	Validate(params ...interface{}) (bool, error)
 }
 
-//
+// Convenience wrapper for Config -
 //
 type ExtendedConfig interface {
 	Get(key ...interface{}) interface{}
 	Set(key interface{}, value interface{}) interface{}
-	Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{}
 	Validate(params ...interface{}) (bool, error)
 
 	Bool(key ...interface{}) (bool, error)
 	String(key ...interface{}) (string, error)
 	SubConfig(key interface{}) (ExtendedConfig, error)
+
+	Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{}
+	//	FindByKey(predicate func(interface{}) bool) map[interface{}]interface{}
+	//	FindByValue(predicate func(interface{}) bool) map[interface{}]interface{}
+
 }
 
 // Generic validator
@@ -175,8 +179,18 @@ func NewConfig(defaults Config) Config {
 	return cfg
 }
 
+//
+//
 func HumanConfig(config Config) ExtendedConfig {
 	cfg := new(AConfig)
 	cfg.Defaults = config
 	return cfg
+}
+
+//
+//
+func ConfigFromMap(m map[interface{}]interface{}) ExtendedConfig {
+	config := new(AConfig)
+	config.cfg = m
+	return config
 }
