@@ -1,0 +1,56 @@
+
+http://blog.svbtle.com/open-for-everyone
+
+themes
+https://github.com/sirbrad/blogginekyll
+
+Editors:
+  ☐ iawriter
+  ☐ sublime text
+
+Typography:
+ ☐ typejournal http://typejournal.ru/articles/Futurist-Typography-II
+   ☐ пост — афіша + текст
+
+Development:
+ ☐ model for blog post?
+   like https://medium.com/medium-eng/why-contenteditable-is-terrible-122d8a40e480
+     paragraphs
+       sections
+ 
+ ☐ plain html or fancy single-page-app https://medium.com/joys-of-javascript/beyond-pushstate-building-single-page-applications-4353246f4480
+
+Platforms:
+ ☐ medium — very nice editor — https://medium.com/medium-eng/just-a-web-page-194f7a3d260a
+ ☐ vox media
+    chorus
+      http://techcrunch.com/2012/05/07/a-closer-look-at-chorus-the-next-generation-publishing-platform-that-runs-vox-media/
+      http://product.voxmedia.com/
+ ☐ ny times
+     * scoop
+         http://open.blogs.nytimes.com/2014/06/17/scoop-a-glimpse-into-the-nytimes-cms/?_php=true&_type=blogs&smid=pl-share&_r=0
+     https://github.com/NYTimes/ice/
+     http://open.blogs.nytimes.com/2012/01/23/introducing-ice-writing-for-the-web-first/
+  ☐ looooch spaces
+  ☐ wix
+    
+Editorial stuff:
+  ☐ newsroom
+  ☐ scheduling posts
+  ☐ feedback
+  ☐ edits (authoring)
+  ☐ adding metadata
+  ☐ distribution
+
+
+Trendy shit:
+   * emoji
+   * responsible/clean / mobile
+   * images
+   * embed tweets/instagrams/fbs
+   * comments for paragraph
+   * collaborationism)
+   * metrics,metrics,metrics — time spent reading
+   * fucking quotes on half of the screen — mtrpl
+   * storytelling
+    
