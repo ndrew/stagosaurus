@@ -19,7 +19,7 @@ func TestFileSystemImpl(t *testing.T) {
 	}
 
 	res := fs.Find(func(k interface{}, v interface{}) bool {
-
+		// fmt.Println(v.(*File).Name())
 		return v.(*File).Name() == "io_test.go"
 	})
 
@@ -31,8 +31,7 @@ func TestFileSystemImpl(t *testing.T) {
 
 	file := f.(*File)
 	content := string(*file.Contents("."))
-
-	if content != "" {
+	if content == "" {
 		t.Error("file hasn't been read")
 	}
 }
