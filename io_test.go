@@ -19,7 +19,6 @@ func TestFileSystemImpl(t *testing.T) {
 	}
 
 	res := fs.Find(func(k interface{}, v interface{}) bool {
-		// fmt.Println(v.(*File).Name())
 		return v.(*File).Name() == "io_test.go"
 	})
 
