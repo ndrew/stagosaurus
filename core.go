@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-// Asset
+// Asset describes an asset
 // the smallest named/storable piece of information
 type Asset interface {
 	GetName() string
@@ -22,13 +22,13 @@ type Post interface {
 	GetContents() (*[]byte, error)
 }
 
-// Config retrieving abstraction
+// ConfigSource — config retrieving abstraction
 //
 type ConfigSource interface {
 	GetConfig() (Config, error)
 }
 
-// Posts' retrieving abstraction
+// PostSource — Posts' retrieving abstraction
 //
 type PostSource interface {
 	GetPosts(Config) ([]Post, error)
@@ -51,7 +51,7 @@ type binaryAsset struct {
 	data *[]byte
 }
 
-// Binary Asset Constructor
+// BinaryAsset — binary asset constructor
 //
 func BinaryAsset(name string, data *[]byte) Asset {
 	asset := new(binaryAsset)
@@ -60,12 +60,16 @@ func BinaryAsset(name string, data *[]byte) Asset {
 	return asset
 }
 
-func (this *binaryAsset) GetName() string {
-	return this.name
+// GetName — returns name of an asset
+//
+func (asset *binaryAsset) GetName() string {
+	return asset.name
 }
 
-func (this *binaryAsset) GetContents() (*[]byte, error) {
-	return this.data, nil
+// GetContents — returns contents of an asset
+//
+func (asset *binaryAsset) GetContents() (*[]byte, error) {
+	return asset.data, nil
 }
 
 // lazy loaded Asset
@@ -75,7 +79,7 @@ type lazyAsset struct {
 	loadFunc func(string) (*[]byte, error)
 }
 
-// Lazy loaded Asset contructor
+// LazyAsset — Lazy loaded Asset contructor
 //
 func LazyAsset(name string, loadFunc func(string) (*[]byte, error)) Asset {
 	asset := new(lazyAsset)
@@ -84,15 +88,19 @@ func LazyAsset(name string, loadFunc func(string) (*[]byte, error)) Asset {
 	return asset
 }
 
-func (this *lazyAsset) GetName() string {
-	return this.name
+// GetName — returns name of an asset
+//
+func (asset *lazyAsset) GetName() string {
+	return asset.name
 }
 
-func (this *lazyAsset) GetContents() (*[]byte, error) {
-	return this.loadFunc(this.name)
+// GetContents — returns contents of an asset
+//
+func (asset *lazyAsset) GetContents() (*[]byte, error) {
+	return asset.loadFunc(asset.name)
 }
 
-// in-mem Post Constructor
+// NewPost — in-mem Post Constructor
 //
 func NewPost(name string, data interface{}, meta Config, assets []Asset) (Post, error) {
 	post := new(postImpl)
@@ -119,18 +127,26 @@ func NewPost(name string, data interface{}, meta Config, assets []Asset) (Post, 
 	return post, nil
 }
 
-func (this *postImpl) GetName() string {
-	return this.name
+// GetName — returns name of the post
+//
+func (post *postImpl) GetName() string {
+	return post.name
 }
 
-func (this *postImpl) GetContents() (*[]byte, error) {
-	return this.data, nil
+// GetContents — returns contents of the post
+//
+func (post *postImpl) GetContents() (*[]byte, error) {
+	return post.data, nil
 }
 
-func (this *postImpl) GetConfig() Config {
-	return this.meta
+// GetConfig — returns post metadata
+//
+func (post *postImpl) GetConfig() Config {
+	return post.meta
 }
 
-func (this *postImpl) GetAssets() []Asset {
-	return this.assets
+// GetAssets – returns list of post's assets
+//
+func (post *postImpl) GetAssets() []Asset {
+	return post.assets
 }

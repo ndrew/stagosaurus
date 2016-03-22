@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var WTF string = "Pure Magic just happened!" // always wanted to do this!
+var WTF = "Pure Magic just happened!" // always wanted to do this!
 
 // custom assertion
 //

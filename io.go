@@ -10,21 +10,22 @@ import (
 /******************************
  * Playing with go io system
  */
+
+// File extends os.FileInfo
+//
 type File struct {
 	os.FileInfo
 }
 
-/**
- * return contents of the file
- */
-func (f *File) Contents(sourceDir string) *[]byte {
-	data, _ := ioutil.ReadFile(filepath.Join(sourceDir, f.Name()))
-	return &data
+// Contents — return contents of the file
+//
+func (f *File) Contents(sourceDir string) (*[]byte, error) {
+	data, err := ioutil.ReadFile(filepath.Join(sourceDir, f.Name()))
+	return &data, err
 }
 
-/**
- * returns file extension
- */
+// GetExt — returns file extension
+//
 func (f File) GetExt() string {
 	var a = strings.Split(f.Name(), ".")
 	if 0 == len(a) {
@@ -46,9 +47,8 @@ func newFile(f os.FileInfo) *File {
 	return &File{f}
 }
 
-/**
- * returns filename with new extension
- */
+// SubstituteExt — returns filename with new extension
+//
 func (f File) SubstituteExt(with string) string {
 	// TODO: handing with == ""
 	var a = strings.Split(f.Name(), ".")
@@ -60,28 +60,40 @@ func (f File) SubstituteExt(with string) string {
 	return strings.Join(a, ".")
 }
 
-// 'Filestem' abstraction for retrieving/stroring Assets
+// FileSystem — 'Filestem' abstraction for retrieving/stroring Assets
 //
 type FileSystem struct {
 	root string
 }
 
-func (this *FileSystem) Get(key ...interface{}) interface{} {
+// Contents — return file contents
+//
+func (fs *FileSystem) Contents(f *File) (*[]byte, error) {
+	return f.Contents(fs.root)
+}
+
+// Get — tbd
+//
+func (fs *FileSystem) Get(key ...interface{}) interface{} {
 	return nil
 }
 
-func (this *FileSystem) Set(key interface{}, value interface{}) interface{} {
+// Set — tbd
+//
+func (fs *FileSystem) Set(key interface{}, value interface{}) interface{} {
 	return nil
 }
 
-func (this *FileSystem) Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{} {
+// Find — finds files)
+//
+func (fs *FileSystem) Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{} {
 	res := make(map[interface{}]interface{})
-	posts, _ := ioutil.ReadDir(this.root)
+	posts, _ := ioutil.ReadDir(fs.root)
 
 	for _, f := range posts {
 		file := newFile(f)
 
-		fname := filepath.Join(this.root, f.Name())
+		fname := filepath.Join(fs.root, f.Name())
 		if predicate(fname, file) {
 			res[fname] = file
 		}
@@ -89,14 +101,16 @@ func (this *FileSystem) Find(predicate func(interface{}, interface{}) bool) map[
 	return res
 }
 
-func (this *FileSystem) Validate(params ...interface{}) (bool, error) {
+// Validate — tbd
+//
+func (fs *FileSystem) Validate(params ...interface{}) (bool, error) {
 	return true, nil
 }
 
 //////////
 // impl
 
-// FileSytem constructor.
+// NewFileSystem — FileSytem constructor.
 //
 func NewFileSystem(cfg Config) (*FileSystem, error) {
 	/*if v, ok := config.(site.Validator); ok {
@@ -129,28 +143,3 @@ func NewFileSystem(cfg Config) (*FileSystem, error) {
 	fs.root = root
 	return fs, nil
 }
-
-/*
-func (this *Config) FindByKey(predicate func(interface{}) bool) map[interface{}]interface{} {
-    return this.Find(func(k interface{}, v interface{}) bool {
-        return predicate(k)
-    })
-}
-
-func (this *Config) FindByValue(predicate func(interface{}) bool) map[interface{}]interface{} {
-    return this.Find(func(k interface{}, v interface{}) bool {
-        return predicate(v)
-    })
-}
-
-func (this *Config) Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{} {
-    res := make(map[interface{}]interface{})
-    for k, v := range this.cfg {
-        if predicate(k, v) {
-            res[k] = v
-        }
-    }
-    return res
-}
-
-*/

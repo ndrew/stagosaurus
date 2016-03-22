@@ -9,7 +9,7 @@ import (
 // Convenience convertation functions
 //
 
-// interface{} -> string
+// ToString — interface{} -> string
 //
 func ToString(v interface{}) (string, error) {
 	if nil != v {
@@ -21,7 +21,7 @@ func ToString(v interface{}) (string, error) {
 	return iv, errors.New("Value is not String")
 }
 
-// interface{} -> bool
+// ToBool – interface{} -> bool
 //
 func ToBool(v interface{}) (bool, error) {
 	if nil != v {
@@ -33,7 +33,7 @@ func ToBool(v interface{}) (bool, error) {
 	return iv, errors.New("Value is not Bool")
 }
 
-// interface{} -> Asset
+// ToAsset — interface{} -> Asset
 //
 func ToAsset(v interface{}) (Asset, error) {
 	if nil != v {
@@ -44,7 +44,7 @@ func ToAsset(v interface{}) (Asset, error) {
 	return nil, errors.New("Value is not Asset")
 }
 
-// interface{} -> map[interface{}]interface{}
+// ToMap — interface{} -> map[interface{}]interface{}
 //
 func ToMap(v interface{}) (map[interface{}]interface{}, error) {
 	if nil != v {
@@ -83,7 +83,7 @@ func toValue(i interface{}) reflect.Value {
 	return t
 }
 
-//
+// AsConfig — config->ExtendedConfig
 //
 func AsConfig(config interface{}) ExtendedConfig {
 	t := reflect.ValueOf(config)

@@ -29,7 +29,11 @@ func TestFileSystemImpl(t *testing.T) {
 	}
 
 	file := f.(*File)
-	content := string(*file.Contents("."))
+	data, err := file.Contents(".")
+	if err != nil {
+		t.Error(err)
+	}
+	content := string(*data)
 	if content == "" {
 		t.Error("file hasn't been read")
 	}

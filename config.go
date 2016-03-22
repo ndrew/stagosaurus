@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-// Generic Config interface
+// Config — generic Config interface
 //
 type Config interface {
 	Get(key ...interface{}) interface{}
@@ -17,7 +17,7 @@ type Config interface {
 	Validate(params ...interface{}) (bool, error)
 }
 
-// Convenience wrapper for Config -
+// ExtendedConfig — convenience wrapper for Config -
 //
 type ExtendedConfig interface {
 	Get(key ...interface{}) interface{}
@@ -34,13 +34,13 @@ type ExtendedConfig interface {
 
 }
 
-// Generic validator
+// Validator — generic validator
 //
 type Validator interface {
 	Validate(params ...interface{}) (bool, error)
 }
 
-// KeyValue config implementation
+// AConfig - KeyValue config implementation
 //
 type AConfig struct {
 	Defaults Config
@@ -51,20 +51,20 @@ type AConfig struct {
 //
 // Note: as go doesn't support polymorphic funcs, I do trick with variable arguments to have
 // fluent interface for providing optional overriding default value
-func (this *AConfig) Get(key ...interface{}) interface{} {
-	if this.cfg == nil {
-		this.cfg = make(map[interface{}]interface{})
+func (config *AConfig) Get(key ...interface{}) interface{} {
+	if config.cfg == nil {
+		config.cfg = make(map[interface{}]interface{})
 	}
 	switch {
 	case 0 == len(key):
-		return this
+		return config
 	case 1 == len(key):
-		if nil != this.Defaults && this != this.Defaults && nil == this.cfg[key[0]] {
-			return this.Defaults.Get(key[0])
+		if nil != config.Defaults && config != config.Defaults && nil == config.cfg[key[0]] {
+			return config.Defaults.Get(key[0])
 		}
-		return this.cfg[key[0]]
+		return config.cfg[key[0]]
 	case 2 == len(key):
-		v := this.cfg[key[0]]
+		v := config.cfg[key[0]]
 		if nil == v {
 			return key[1]
 		}
@@ -74,22 +74,23 @@ func (this *AConfig) Get(key ...interface{}) interface{} {
 	}
 }
 
-// Sets value for key in configuration dictionary
+// Set - sets value for key in configuration dictionary
 //
-func (this *AConfig) Set(key interface{}, value interface{}) interface{} {
-	if this.cfg == nil {
-		this.cfg = make(map[interface{}]interface{})
+func (config *AConfig) Set(key interface{}, value interface{}) interface{} {
+	if config.cfg == nil {
+		config.cfg = make(map[interface{}]interface{})
 	}
 
-	this.cfg[key] = value
-	return this.Get(key)
+	config.cfg[key] = value
+	return config.Get(key)
 }
 
-// TBD — do generic validation
-// Configuration validation via key => validity-predicate map.
-//  Returns result of validation and list of failed keys, if any
+// Validate — does validation
 //
-func (this *AConfig) Validate(params ...interface{}) (bool, error) {
+// Configuration validation via key => validity-predicate map.
+// Returns result of validation and list of failed keys, if any
+// TBD — do generic validation
+func (config *AConfig) Validate(params ...interface{}) (bool, error) {
 	if 1 == len(params) {
 		if predicateMap, ok := params[0].(map[interface{}]func(interface{}) bool); ok {
 			res := true
@@ -97,7 +98,7 @@ func (this *AConfig) Validate(params ...interface{}) (bool, error) {
 			errs := noErrors[:]
 
 			for k, predicate := range predicateMap {
-				if valid := predicate(this.Get(k)); false == valid {
+				if valid := predicate(config.Get(k)); false == valid {
 					res = false
 					errs = append(errs, k)
 				}
@@ -112,11 +113,11 @@ func (this *AConfig) Validate(params ...interface{}) (bool, error) {
 	return false, errors.New("Unknown stuff to validate")
 }
 
-// Search function
+// Find — search function
 //
-func (this *AConfig) Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{} {
+func (config *AConfig) Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{} {
 	res := make(map[interface{}]interface{})
-	for k, v := range this.cfg {
+	for k, v := range config.cfg {
 		if predicate(k, v) {
 			res[k] = v
 		}
@@ -124,27 +125,28 @@ func (this *AConfig) Find(predicate func(interface{}, interface{}) bool) map[int
 	return res
 }
 
-// convenience search
+// FindByKey — convenience search by key
 //
-
-func (this *AConfig) FindByKey(predicate func(interface{}) bool) map[interface{}]interface{} {
-	return this.Find(func(k interface{}, v interface{}) bool {
+func (config *AConfig) FindByKey(predicate func(interface{}) bool) map[interface{}]interface{} {
+	return config.Find(func(k interface{}, v interface{}) bool {
 		return predicate(k)
 	})
 }
 
-func (this *AConfig) FindByValue(predicate func(interface{}) bool) map[interface{}]interface{} {
-	return this.Find(func(k interface{}, v interface{}) bool {
+// FindByValue — convenience search by value
+//
+func (config *AConfig) FindByValue(predicate func(interface{}) bool) map[interface{}]interface{} {
+	return config.Find(func(k interface{}, v interface{}) bool {
 		return predicate(v)
 	})
 }
 
-// subconfig
+// SubConfig - returns config for key
 //
-func (this *AConfig) SubConfig(key interface{}) (ExtendedConfig, error) {
+func (config *AConfig) SubConfig(key interface{}) (ExtendedConfig, error) {
 	cfg := new(AConfig)
 
-	v, err := ToMap(this.Get(key))
+	v, err := ToMap(config.Get(key))
 	if err != nil {
 		return cfg, errors.New("couldn't get a subconfig")
 	}
@@ -156,26 +158,26 @@ func (this *AConfig) SubConfig(key interface{}) (ExtendedConfig, error) {
 //////////////
 // convenience getters, but hence these will be mostly invisible - use convertation functions like ToString/ToBool/etc.
 
-// string
+// String - return configuration for key as string
 //
-func (this *AConfig) String(key ...interface{}) (string, error) {
-	return ToString(this.Get(key...))
+func (config *AConfig) String(key ...interface{}) (string, error) {
+	return ToString(config.Get(key...))
 }
 
-// bool
+// Bool - return configuration for key as bool
 //
-func (this *AConfig) Bool(key ...interface{}) (bool, error) {
-	return ToBool(this.Get(key...))
+func (config *AConfig) Bool(key ...interface{}) (bool, error) {
+	return ToBool(config.Get(key...))
 }
 
-// Constructor for empty Config
+// EmptyConfig — constructor for empty Config
 //
 func EmptyConfig() Config {
 	cfg := new(AConfig)
 	return cfg
 }
 
-// Constructor for Config. If defaults are not needed just do new(Config)
+// NewConfig — Constructor for Config. If defaults are not needed just do new(Config)
 //
 func NewConfig(defaults Config) Config {
 	cfg := new(AConfig)
@@ -183,7 +185,7 @@ func NewConfig(defaults Config) Config {
 	return cfg
 }
 
-//
+// HumanConfig — creates ExtendedConfig from Config
 //
 func HumanConfig(config Config) ExtendedConfig {
 	cfg := new(AConfig)
@@ -191,7 +193,7 @@ func HumanConfig(config Config) ExtendedConfig {
 	return cfg
 }
 
-//
+// ConfigFromMap — creates config from map
 //
 func ConfigFromMap(m map[interface{}]interface{}) ExtendedConfig {
 	config := new(AConfig)
@@ -199,9 +201,7 @@ func ConfigFromMap(m map[interface{}]interface{}) ExtendedConfig {
 	return config
 }
 
-//
-//
-//
+// ReadJSONConfig — reads json files and creates Config from it
 //
 func ReadJSONConfig(path string, defaults Config) (Config, error) {
 	cfg := NewConfig(defaults)
@@ -213,7 +213,7 @@ func ReadJSONConfig(path string, defaults Config) (Config, error) {
 
 	source, err := ioutil.ReadFile(realpath)
 	if err != nil {
-		return cfg, errors.New(fmt.Sprintf("ERR: Config file '%v' is not found.\n", realpath))
+		return cfg, fmt.Errorf("ERR: Config file '%v' is not found.\n", realpath)
 	}
 
 	//
@@ -224,7 +224,7 @@ func ReadJSONConfig(path string, defaults Config) (Config, error) {
 	err = json.Unmarshal(source, &data)
 
 	if err != nil || len(data) == 0 {
-		return cfg, errors.New(fmt.Sprintf("ERR: can't parse JSON from '%v'\n", realpath))
+		return cfg, fmt.Errorf("ERR: can't parse JSON from '%v'\n", realpath)
 	}
 
 	for k, v := range data {
@@ -235,7 +235,7 @@ func ReadJSONConfig(path string, defaults Config) (Config, error) {
 			cfg.Set(k, value)
 		} else {
 			// does this really occurs?
-			return cfg, errors.New(fmt.Sprintf("ERR: couldn't interpret json, '%v':%v \n", k, *v))
+			return cfg, fmt.Errorf("ERR: couldn't interpret json, '%v':%v \n", k, *v)
 		}
 	}
 
