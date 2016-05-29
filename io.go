@@ -63,13 +63,13 @@ func (f File) SubstituteExt(with string) string {
 // FileSystem — 'Filestem' abstraction for retrieving/stroring Assets
 //
 type FileSystem struct {
-	root string
+	Root string
 }
 
 // Contents — return file contents
 //
 func (fs *FileSystem) Contents(f *File) (*[]byte, error) {
-	return f.Contents(fs.root)
+	return f.Contents(fs.Root)
 }
 
 // Get — tbd
@@ -88,12 +88,12 @@ func (fs *FileSystem) Set(key interface{}, value interface{}) interface{} {
 //
 func (fs *FileSystem) Find(predicate func(interface{}, interface{}) bool) map[interface{}]interface{} {
 	res := make(map[interface{}]interface{})
-	posts, _ := ioutil.ReadDir(fs.root)
+	posts, _ := ioutil.ReadDir(fs.Root)
 
 	for _, f := range posts {
 		file := newFile(f)
 
-		fname := filepath.Join(fs.root, f.Name())
+		fname := filepath.Join(fs.Root, f.Name())
 		if predicate(fname, file) {
 			res[fname] = file
 		}
@@ -112,34 +112,8 @@ func (fs *FileSystem) Validate(params ...interface{}) (bool, error) {
 
 // NewFileSystem — FileSytem constructor.
 //
-func NewFileSystem(cfg Config) (*FileSystem, error) {
-	/*if v, ok := config.(site.Validator); ok {
-	    // validate the config key 'greeting'
-	    validator := map[interface{}](func(interface{}) bool){
-	        "greeting": func(v interface{}) bool {
-	            return v != nil && v != "Hello"
-	        },
-	    }
-
-	    if original, _ := v.Validate(validator); !original {
-	        return config, errors.New("You've provided too trivial value! Try again, be original!")
-	    }
-	}*/
-
-	config := HumanConfig(cfg)
-
-	validator := map[interface{}](func(interface{}) bool){
-		"source-dir": func(v interface{}) bool {
-			return v != nil // && v != "Hello"
-		},
-	}
-	if ok, err := config.Validate(validator); !ok {
-		return nil, err
-	}
-
-	root, _ := config.String("source-dir")
-
+func NewFileSystem(root string) (*FileSystem, error) {
 	fs := new(FileSystem)
-	fs.root = root
+	fs.Root = root
 	return fs, nil
 }

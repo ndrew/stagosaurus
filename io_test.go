@@ -5,10 +5,7 @@ import (
 )
 
 func TestFileSystemImpl(t *testing.T) {
-	config := EmptyConfig()
-	config.Set("source-dir", ".")
-
-	fs, err := NewFileSystem(config)
+	fs, err := NewFileSystem(".")
 	if err != nil {
 		t.Error(err)
 	}
