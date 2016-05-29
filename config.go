@@ -144,9 +144,14 @@ func (config *AConfig) FindByValue(predicate func(interface{}) bool) map[interfa
 // SubConfig - returns config for key
 //
 func (config *AConfig) SubConfig(key interface{}) (ExtendedConfig, error) {
+	val := config.Get(key)
+
+	if existingConfig, ok := val.(ExtendedConfig); ok {
+		return existingConfig, nil
+	}
 	cfg := new(AConfig)
 
-	v, err := ToMap(config.Get(key))
+	v, err := ToMap(val)
 	if err != nil {
 		return cfg, errors.New("couldn't get a subconfig")
 	}
